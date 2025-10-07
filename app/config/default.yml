@@ -1,0 +1,10 @@
+  api:
+    title: "Insurance API (SQLite)"
+    version: "1.0.0"
+    json_backend: "orjson"
+    compression:
+      gzip: true
+
+  database:
+    url: "sqlite+aiosqlite:///./app.db"   # file DB in project root
+    create_tables_on_startup: true        # dev only; use Alembic in prod

@@ -14,6 +14,7 @@ class Persistence(containers.DeclarativeContainer):
     def _get_database_url(core_container):
         return core_container.config.database.url()
     
+    # Single engine instance reused across the app lifetime
     engine = providers.Singleton(
         build_engine,
         url=providers.Callable(_get_database_url, core_container=core),

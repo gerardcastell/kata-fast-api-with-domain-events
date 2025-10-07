@@ -15,7 +15,7 @@ router = APIRouter(prefix="/customers", tags=["customers"])
     "/", response_model=Customer, status_code=status.HTTP_201_CREATED
 )
 @inject
-def create_customer(
+async def create_customer(
     name: str,
     email: str,
     id: Optional[str] = None,
@@ -23,31 +23,33 @@ def create_customer(
     customer_creator: CustomerCreator = Depends(Provide(Container.customer_services.customer_creator)),
 ):
     try:
-        return customer_creator.create(
-            id=id, name=name, email=email, activePoliciesCount=activePoliciesCount
-        )
+        # Only pass id if it's not None, let the entity generate it if needed
+        create_kwargs = {"name": name, "email": email, "activePoliciesCount": activePoliciesCount}
+        if id is not None:
+            create_kwargs["id"] = id
+        return await customer_creator.create(**create_kwargs)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/", response_model=List[Customer])
 @inject
-def list_customers(
+async def list_customers(
     customer_searcher: CustomerSearcher = Depends(Provide(Container.customer_services.customer_searcher)),
 ):
     try:
-        return customer_searcher.search_all()
+        return await customer_searcher.search_all()
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/{customer_id}", response_model=Customer)
 @inject
-def get_customer(
+async def get_customer(
     customer_id: str,
     customer_searcher: CustomerSearcher = Depends(Provide(Container.customer_services.customer_searcher)),
 ):
-    customer = customer_searcher.search_by_id(customer_id)
+    customer = await customer_searcher.search_by_id(customer_id)
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found")
     return customer

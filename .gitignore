@@ -14,3 +14,4 @@ wheels/
 
 # Database
 *.db
+*.db-*

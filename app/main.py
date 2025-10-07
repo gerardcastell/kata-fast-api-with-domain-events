@@ -4,6 +4,9 @@ import uvicorn
 from fastapi import Depends, FastAPI
 from sqlmodel import SQLModel
 
+from app.contexts.customers.domain.entities.customer import (
+    Customer,  # Import to register with SQLModel
+)
 from app.contexts.customers.infrastructure.api import routes as customer_module
 from app.shared.containers.main import Container
 from app.shared.infrastructure.api.health import routes as health_module
@@ -18,8 +21,10 @@ async def lifespan(app: FastAPI):
     if container.core.config.database.create_tables_on_startup():
         async with container.persistence.engine().begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
+    # Hand control back to FastAPI while the app is running
     yield
-    # Shutdown (if needed)
+    # Shutdown: ensure DB engine is cleanly disposed to avoid event loop warnings
+    await container.persistence.engine().dispose()
 
 
 def create_app(config_path: str):

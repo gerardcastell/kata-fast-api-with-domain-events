@@ -18,7 +18,11 @@ class CustomerCreator:
         activePoliciesCount: Optional[int] = 0,
     ) -> Customer:
         # Only pass id if it's provided, let Customer generate it if None
-        customer_kwargs = {"name": name, "email": email, "activePoliciesCount": activePoliciesCount}
+        customer_kwargs = {
+            "name": name,
+            "email": email,
+            "activePoliciesCount": activePoliciesCount,
+        }
         if id is not None:
             customer_kwargs["id"] = id
         customer = Customer(**customer_kwargs)

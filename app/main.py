@@ -1,17 +1,12 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from sqlmodel import SQLModel
 
-from app.contexts.customers.domain.entities.customer import (
-    Customer,  # Import to register with SQLModel
-)
 from app.contexts.customers.infrastructure.api import routes as customer_module
 from app.shared.containers.main import Container
 from app.shared.infrastructure.api.health import routes as health_module
-
-from .dependencies import get_query_token
 
 
 @asynccontextmanager
@@ -34,7 +29,7 @@ def create_app(config_path: str):
 
     app = FastAPI(
         title="Insurance API",
-        dependencies=[Depends(get_query_token)],
+        dependencies=[],
         lifespan=lifespan,
     )
     app.container = container

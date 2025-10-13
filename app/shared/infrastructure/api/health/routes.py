@@ -16,7 +16,7 @@ def live():
 @router.get("/ready")
 @inject
 async def ready(
-    session_factory = Depends(Provide(Container.database.provided.session_factory)),
+    session_factory=Depends(Provide(Container.database.provided.session_factory)),
 ):
     async with session_factory() as session:
         await session.exec(text("SELECT 1"))

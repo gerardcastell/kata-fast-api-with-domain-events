@@ -29,13 +29,13 @@ def create_app():
     container = Container()
     container.config.from_pydantic(settings)
     app = FastAPI(
-        title=container.config.provided.app_title, debug=container.config.provided.debug,
+        title=container.config.provided.app_title,
+        debug=container.config.provided.debug,
         dependencies=[],
         lifespan=lifespan,
     )
     app.container = container
 
-   
     # Wire and include the routers
     modules = [customer_module, health_module]
     container.wire(modules=modules)

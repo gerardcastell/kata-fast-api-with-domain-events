@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - '8000:8000'
+    environment:
+      - PYTHONPATH=/app
+      - SQLITE_URL=sqlite+aiosqlite:///./data/app.db
+      - CREATE_TABLES_ON_STARTUP=true
+      - DEBUG=false
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+    volumes:
+      # Mount database file to persist data
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health/live']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Development service with hot reload
+  app-dev:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - '8001:8000'
+    environment:
+      - PYTHONPATH=/app
+      - SQLITE_URL=sqlite+aiosqlite:///./data/app.db
+      - CREATE_TABLES_ON_STARTUP=true
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+    volumes:
+      # Mount source code for hot reload
+      - ./app:/app/app
+      - ./data:/app/data
+    command:
+      [
+        'uv',
+        'run',
+        'uvicorn',
+        'app.main:app',
+        '--host',
+        '0.0.0.0',
+        '--port',
+        '8000',
+        '--reload',
+      ]
+    profiles:
+      - dev
+    restart: unless-stopped
+
+volumes:
+  data:

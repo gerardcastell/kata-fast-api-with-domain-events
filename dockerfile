@@ -1,17 +1,42 @@
 
-FROM python:3.9
+# Use Python 3.12 slim image for better performance and security
+FROM python:3.12-slim
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
 
-WORKDIR /code
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
+# Install uv for faster dependency management
+RUN pip install --no-cache-dir uv
 
-COPY ./requirements.txt /code/requirements.txt
+# Set work directory
+WORKDIR /app
 
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+# Install dependencies using uv
+RUN uv sync --frozen --no-dev
 
+# Copy application code
+COPY ./app ./app
 
-COPY ./app /code/app
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
+USER app
 
+# Expose port
+EXPOSE 8000
 
-CMD ["fastapi", "run", "app/main.py", "--port", "80"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health/live || exit 1
+
+# Run the application
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

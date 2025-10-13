@@ -32,6 +32,6 @@ class Persistence(containers.DeclarativeContainer):
                 await s.rollback()
                 raise
 
-    session = providers.Resource(
+    session = providers.Factory(
         _session, sf=session_factory
     )  # Resource provides a per-use context managed session

@@ -33,5 +33,5 @@ class Database:
             print("Closing session")
             await session.close()
 
-    def dispose(self):
-        self._async_engine.dispose()
+    async def dispose(self):
+        await self._async_engine.dispose()

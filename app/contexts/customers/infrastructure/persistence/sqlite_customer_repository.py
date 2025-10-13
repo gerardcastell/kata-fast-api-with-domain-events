@@ -10,25 +10,21 @@ from app.contexts.customers.domain.repositories.customer_repository import (
 
 
 class SQLiteCustomerRepository(CustomerRepository):
-    def __init__(self, session: AsyncSession):
-        self.session = session
+    def __init__(self, session_factory):
+        self.session_factory = session_factory
 
-    async def _with_session(self, ):
-        async with self.session as session:
-            yield session
-    
-    async def save(self, customer: Customer, ) -> Customer:
-        async with self.session as session:
+    async def save(self, customer: Customer) -> Customer:
+        async with self.session_factory() as session:
             session.add(customer)
             await session.flush()
             await session.refresh(customer)
             return customer
 
-    async def find_by_id(self, id: str, ) -> Customer | None:
-        async with self.session as session:
+    async def find_by_id(self, id: str) -> Customer | None:
+        async with self.session_factory() as session:
             return await session.get(Customer, id)
 
-    async def find_all(self, ) -> Iterable[Customer]:
-        async with self.session as session:
+    async def find_all(self) -> Iterable[Customer]:
+        async with self.session_factory() as session:
             res = await session.exec(select(Customer))
-        return res.all()
+            return res.all()

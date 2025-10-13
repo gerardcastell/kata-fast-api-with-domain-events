@@ -8,10 +8,10 @@ from app.contexts.customers.infrastructure.persistence.sqlite_customer_repositor
 
 
 class CustomerServices(containers.DeclarativeContainer):
-    persistence = providers.DependenciesContainer()
+    session_factory = providers.Dependency()
 
     customer_repository = providers.Factory(
-        SQLiteCustomerRepository, session=persistence.session
+        SQLiteCustomerRepository, session_factory=session_factory
     )
 
     customer_creator = providers.Factory(

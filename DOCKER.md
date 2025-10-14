@@ -71,6 +71,79 @@ docker-compose down
 docker-compose down -v
 ```
 
+## Debugging
+
+### Development Mode with Logs
+
+```bash
+# Run with hot reload for development
+docker-compose --profile dev up --build
+
+# View logs in real-time
+docker-compose --profile dev logs -f app-dev
+
+# View logs with timestamps
+docker-compose --profile dev logs -f -t app-dev
+```
+
+### Interactive Debugging
+
+```bash
+# Access the running container shell
+docker-compose --profile dev exec app-dev /bin/bash
+
+# Or use sh if bash is not available
+docker-compose --profile dev exec app-dev /bin/sh
+```
+
+### Remote Debugging with debugpy
+
+```bash
+# Run the debug service (waits for debugger to attach)
+docker-compose --profile debug up --build
+
+# The service will be available at http://localhost:8002
+# Debug port is available at localhost:5678
+```
+
+To connect with VS Code:
+
+1. Install the Python extension
+2. Create a `.vscode/launch.json` file with:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Remote Attach",
+      "type": "python",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/app"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Database Debugging
+
+```bash
+# Access the database directly
+docker-compose --profile dev exec app-dev sqlite3 /app/data/app.db
+
+# Or copy the database file to your local machine
+docker cp $(docker-compose --profile dev ps -q app-dev):/app/data/app.db ./debug_app.db
+```
+
 ## Logs
 
 ```bash
@@ -79,4 +152,7 @@ docker-compose logs -f
 
 # View logs for specific service
 docker-compose logs -f app
+
+# View logs for dev service
+docker-compose --profile dev logs -f app-dev
 ```

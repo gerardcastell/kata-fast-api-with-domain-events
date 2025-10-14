@@ -29,8 +29,8 @@ def create_app():
     container = Container()
     container.config.from_pydantic(settings)
     app = FastAPI(
-        title=container.config.provided.app_title,
-        debug=container.config.provided.debug,
+        title=settings.app_title,
+        debug=settings.debug,
         dependencies=[],
         lifespan=lifespan,
     )

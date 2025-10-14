@@ -9,7 +9,8 @@ services:
       - '8000:8000'
     environment:
       - PYTHONPATH=/app
-      - SQLITE_URL=sqlite+aiosqlite:///./data/app.db
+      - SQLITE_URL=${sqlite_url}
+      - POSTGRES_URL=${postgres_url}
       - CREATE_TABLES_ON_STARTUP=true
       - DEBUG=false
       - ENVIRONMENT=production
@@ -17,6 +18,10 @@ services:
     volumes:
       # Mount database file to persist data
       - ./data:/app/data
+    networks:
+      - default-net
+    depends_on:
+      - postgres
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health/live']
@@ -35,7 +40,8 @@ services:
       - '5678:5678' # Debug port
     environment:
       - PYTHONPATH=/app
-      - SQLITE_URL=sqlite+aiosqlite:///./data/app.db
+      - SQLITE_URL=${sqlite_url}
+      - POSTGRES_URL=${postgres_url}
       - CREATE_TABLES_ON_STARTUP=true
       - DEBUG=true
       - ENVIRONMENT=development
@@ -44,6 +50,10 @@ services:
       # Mount source code for hot reload
       - ./app:/app/app
       - ./data:/app/data
+    networks:
+      - default-net
+    depends_on:
+      - postgres
     command:
       [
         'uv',
@@ -70,7 +80,8 @@ services:
       - '5678:5678' # Debug port
     environment:
       - PYTHONPATH=/app
-      - SQLITE_URL=sqlite+aiosqlite:///./data/app.db
+      - SQLITE_URL=${sqlite_url}
+      - POSTGRES_URL=${postgres_url}
       - CREATE_TABLES_ON_STARTUP=true
       - DEBUG=true
       - ENVIRONMENT=development
@@ -79,6 +90,10 @@ services:
       # Mount source code for hot reload
       - ./app:/app/app
       - ./data:/app/data
+    networks:
+      - default-net
+    depends_on:
+      - postgres
     command:
       [
         'uv',
@@ -102,5 +117,29 @@ services:
       - debug
     restart: unless-stopped
 
+  postgres:
+    image: postgres:16.2-alpine3.19
+    environment:
+      - POSTGRES_DB=${PSQL_DB_DATABASE}
+      - POSTGRES_USER=${PSQL_DB_USERNAME}
+      - POSTGRES_PASSWORD=${PSQL_DB_PASSWORD}
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U ${PSQL_DB_USERNAME}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - default-net
+
 volumes:
   data:
+  postgres-data:
+
+networks:
+  default-net:

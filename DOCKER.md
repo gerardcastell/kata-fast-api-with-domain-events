@@ -38,7 +38,8 @@ cp .env.example .env
 
 Key environment variables:
 
-- `SQLITE_URL`: Database connection string
+- `SQLITE_URL`: SQLite Database connection string
+- `POSTGRES_URL`: SQLite Database connection string
 - `DEBUG`: Enable debug mode (true/false)
 - `LOG_LEVEL`: Logging level (DEBUG, INFO, WARNING, ERROR)
 - `ENVIRONMENT`: Environment name (development, production)

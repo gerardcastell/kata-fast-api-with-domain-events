@@ -1,21 +1,20 @@
 from contextlib import asynccontextmanager
-
-from app.shared.infrastructure.db.sqlite_async import (
-    build_async_engine,
-    build_async_session_factory,
-)
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 class Database:
-    def __init__(self, db_url: str):
+    def __init__(
+        self,
+        db_url: str,
+        async_engine: AsyncEngine,
+        async_session: async_sessionmaker[AsyncSession],
+    ):
         self._db_url = db_url
 
         # Single engine instance reused across the app lifetime
-        self._async_engine = build_async_engine(
-            url=db_url,
-        )
-
-        self._session_factory = build_async_session_factory(engine=self._async_engine)
+        self._async_engine = async_engine(url=self._db_url)
+        self._session_factory = async_session(engine=self._async_engine)
 
     @asynccontextmanager
     async def session_factory(self):

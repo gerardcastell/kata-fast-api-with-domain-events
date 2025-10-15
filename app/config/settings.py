@@ -9,6 +9,9 @@ class Config(BaseSettings):
     environment: str = Field("development")
 
     sqlite_url: str = Field(default="sqlite+aiosqlite:///./app.db")
+    postgres_url: str = Field(
+        default="postgresql+asyncpg://postgres:postgres@postgres:5432/cleverea"
+    )
     create_tables_on_startup: bool = Field(default=False)
 
     class Config:

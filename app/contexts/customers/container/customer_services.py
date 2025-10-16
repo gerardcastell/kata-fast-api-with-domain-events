@@ -14,9 +14,5 @@ class CustomerServices(containers.DeclarativeContainer):
         SQLiteCustomerRepository, session_factory=session_factory
     )
 
-    customer_creator = providers.Factory(
-        CustomerCreator, customer_repository=customer_repository
-    )
-    customer_searcher = providers.Factory(
-        CustomerSearcher, customer_repository=customer_repository
-    )
+    customer_creator = providers.Factory(CustomerCreator, customer_repository=customer_repository)
+    customer_searcher = providers.Factory(CustomerSearcher, customer_repository=customer_repository)

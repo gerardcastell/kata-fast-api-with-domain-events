@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-from dependency_injector.wiring import Provide, inject
+from dependency_injector.wiring import inject, Provide
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.contexts.customers.application.customer_creator import CustomerCreator

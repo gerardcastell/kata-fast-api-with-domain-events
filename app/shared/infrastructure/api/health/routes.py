@@ -1,6 +1,7 @@
-from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends
+from dependency_injector.wiring import inject, Provide
 from sqlalchemy import text
+
+from fastapi import APIRouter, Depends
 
 from app.shared.containers.main import Container
 

@@ -170,6 +170,36 @@ services:
     command: ["upgrade", "head"]
     networks:
       - default-net
+  ruff-fix:
+    build:
+      context: .
+      dockerfile: dockerfile
+    working_dir: /app
+    volumes:
+      - ./app:/app/app
+      - ./ruff.toml:/app/ruff.toml
+    entrypoint: ["uv", "run", "ruff"]
+    command: ["check", "app", "--fix"]
+    networks:
+      - default-net
+    profiles:
+      - dev
+    
+  ruff-format:
+    build:
+      context: .
+      dockerfile: dockerfile
+    working_dir: /app
+    volumes:
+      - ./app:/app/app
+      - ./ruff.toml:/app/ruff.toml
+    entrypoint: ["uv", "run", "ruff"]
+    command: ["format", "app"]
+    networks:
+      - default-net
+    profiles:
+      - dev
+
 volumes:
   data:
   postgres-data:

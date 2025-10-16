@@ -2,11 +2,11 @@ from dependency_injector import containers, providers
 
 from app.contexts.customers.container.customer_services import CustomerServices
 from app.shared.containers.database import Database
-from app.shared.infrastructure.db.sqlite_async import (
-    SQLiteDatabaseFactory,
-)
 from app.shared.infrastructure.db.postgresql_async import (
     PostgresDatabaseFactory,
+)
+from app.shared.infrastructure.db.sqlite_async import (
+    SQLiteDatabaseFactory,
 )
 
 

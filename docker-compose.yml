@@ -11,7 +11,7 @@ services:
       - PYTHONPATH=/app
       - SQLITE_URL=${sqlite_url}
       - POSTGRES_URL=${postgres_url}
-      - CREATE_TABLES_ON_STARTUP=true
+      - CREATE_TABLES_ON_STARTUP=${create_tables_on_startup}
       - DEBUG=false
       - ENVIRONMENT=production
       - LOG_LEVEL=INFO
@@ -42,7 +42,7 @@ services:
       - PYTHONPATH=/app
       - SQLITE_URL=${sqlite_url}
       - POSTGRES_URL=${postgres_url}
-      - CREATE_TABLES_ON_STARTUP=true
+      - CREATE_TABLES_ON_STARTUP=${create_tables_on_startup}
       - DEBUG=true
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
@@ -82,7 +82,7 @@ services:
       - PYTHONPATH=/app
       - SQLITE_URL=${sqlite_url}
       - POSTGRES_URL=${postgres_url}
-      - CREATE_TABLES_ON_STARTUP=true
+      - CREATE_TABLES_ON_STARTUP=${create_tables_on_startup}
       - DEBUG=true
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
@@ -137,7 +137,7 @@ services:
     networks:
       - default-net
 
-  alembic-makemigrations:
+  makemigrations:
     build:
       context: .
       dockerfile: dockerfile
@@ -145,7 +145,8 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_URL=${postgres_url}
     volumes:
-      - .:/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
     depends_on:
       - postgres
     entrypoint: ["uv", "run", "python", "-m", "alembic"]
@@ -153,7 +154,7 @@ services:
     networks:
       - default-net
 
-  alembic-migrate:
+  migrate:
     build:
       context: .
       dockerfile: dockerfile
@@ -161,7 +162,8 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_URL=${postgres_url}
     volumes:
-      - .:/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
     depends_on:
       - postgres
     entrypoint: ["uv", "run", "python", "-m", "alembic"]

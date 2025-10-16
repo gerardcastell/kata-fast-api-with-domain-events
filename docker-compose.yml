@@ -122,15 +122,15 @@ services:
   postgres:
     image: postgres:16.2-alpine3.19
     environment:
-      - POSTGRES_DB=${PSQL_DB_DATABASE}
-      - POSTGRES_USER=${PSQL_DB_USERNAME}
-      - POSTGRES_PASSWORD=${PSQL_DB_PASSWORD}
+      - POSTGRES_DB=${psql_db_database}
+      - POSTGRES_USER=${psql_db_username}
+      - POSTGRES_PASSWORD=${psql_db_password}
     volumes:
       - type: volume
         source: postgres-data
         target: /var/lib/postgresql/data
     healthcheck:
-      test: pg_isready -U ${PSQL_DB_USERNAME}
+      test: pg_isready -U ${psql_db_username}
       interval: 10s
       timeout: 5s
       retries: 5
@@ -139,6 +139,37 @@ services:
     networks:
       - default-net
 
+  alembic-makemigrations:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - PYTHONPATH=/app
+      - POSTGRES_URL=${postgres_url}
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    entrypoint: ["uv", "run", "python", "-m", "alembic"]
+    command: ["revision", "--autogenerate", "-m", "auto"]
+    networks:
+      - default-net
+
+  alembic-migrate:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - PYTHONPATH=/app
+      - POSTGRES_URL=${postgres_url}
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    entrypoint: ["uv", "run", "python", "-m", "alembic"]
+    command: ["upgrade", "head"]
+    networks:
+      - default-net
 volumes:
   data:
   postgres-data:

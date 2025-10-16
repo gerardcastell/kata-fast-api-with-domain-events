@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.shared.infrastructure.db.interface import AsyncDatabaseFactory

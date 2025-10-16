@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
 from sqlmodel import SQLModel
+
+from fastapi import FastAPI
 
 from app.config.settings import settings
 from app.contexts.customers.infrastructure.api import routes as customer_module

@@ -11,7 +11,7 @@ services:
       - PYTHONPATH=/app
       - SQLITE_URL=${sqlite_url}
       - POSTGRES_URL=${postgres_url}
-      - CREATE_TABLES_ON_STARTUP=true
+      - CREATE_TABLES_ON_STARTUP=${create_tables_on_startup}
       - DEBUG=false
       - ENVIRONMENT=production
       - LOG_LEVEL=INFO
@@ -42,7 +42,7 @@ services:
       - PYTHONPATH=/app
       - SQLITE_URL=${sqlite_url}
       - POSTGRES_URL=${postgres_url}
-      - CREATE_TABLES_ON_STARTUP=true
+      - CREATE_TABLES_ON_STARTUP=${create_tables_on_startup}
       - DEBUG=true
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
@@ -83,7 +83,7 @@ services:
       - PYTHONPATH=/app
       - SQLITE_URL=${sqlite_url}
       - POSTGRES_URL=${postgres_url}
-      - CREATE_TABLES_ON_STARTUP=true
+      - CREATE_TABLES_ON_STARTUP=${create_tables_on_startup}
       - DEBUG=true
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
@@ -139,7 +139,7 @@ services:
     networks:
       - default-net
 
-  alembic-makemigrations:
+  makemigrations:
     build:
       context: .
       dockerfile: dockerfile
@@ -147,7 +147,8 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_URL=${postgres_url}
     volumes:
-      - .:/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
     depends_on:
       - postgres
     entrypoint: ["uv", "run", "python", "-m", "alembic"]
@@ -155,7 +156,7 @@ services:
     networks:
       - default-net
 
-  alembic-migrate:
+  migrate:
     build:
       context: .
       dockerfile: dockerfile
@@ -163,13 +164,44 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_URL=${postgres_url}
     volumes:
-      - .:/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
     depends_on:
       - postgres
     entrypoint: ["uv", "run", "python", "-m", "alembic"]
     command: ["upgrade", "head"]
     networks:
       - default-net
+  ruff-fix:
+    build:
+      context: .
+      dockerfile: dockerfile
+    working_dir: /app
+    volumes:
+      - ./app:/app/app
+      - ./ruff.toml:/app/ruff.toml
+    entrypoint: ["uv", "run", "ruff"]
+    command: ["check", "app", "--fix"]
+    networks:
+      - default-net
+    profiles:
+      - dev
+    
+  ruff-format:
+    build:
+      context: .
+      dockerfile: dockerfile
+    working_dir: /app
+    volumes:
+      - ./app:/app/app
+      - ./ruff.toml:/app/ruff.toml
+    entrypoint: ["uv", "run", "ruff"]
+    command: ["format", "app"]
+    networks:
+      - default-net
+    profiles:
+      - dev
+
 volumes:
   data:
   postgres-data:

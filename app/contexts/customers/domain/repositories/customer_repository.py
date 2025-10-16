@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from ..entities.customer import Customer
 from typing import Iterable
+
+from ..entities.customer import Customer
 
 
 class CustomerRepository(ABC):

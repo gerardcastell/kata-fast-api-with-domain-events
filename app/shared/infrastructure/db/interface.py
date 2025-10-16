@@ -1,5 +1,6 @@
 from typing import Protocol
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
+
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 

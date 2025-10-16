@@ -1,6 +1,7 @@
 from sqlalchemy import event
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
+
 from app.shared.infrastructure.db.interface import AsyncDatabaseFactory
 
 
@@ -22,6 +23,4 @@ class SQLiteDatabaseFactory(AsyncDatabaseFactory):
     def build_async_session_factory(
         engine: AsyncEngine,
     ) -> async_sessionmaker[AsyncSession]:
-        return async_sessionmaker(
-            bind=engine, class_=AsyncSession, expire_on_commit=False
-        )
+        return async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)

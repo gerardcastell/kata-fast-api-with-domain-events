@@ -12,6 +12,11 @@ class Config(BaseSettings):
     postgres_url: str = Field(
         default="postgresql+asyncpg://postgres:postgres@postgres:5432/cleverea"
     )
+    psql_db_host: str = Field("postgres")
+    psql_db_port: str = Field("5432")
+    psql_db_database: str = Field("cleverea")
+    psql_db_username: str = Field("postgres")
+    psql_db_password: str = Field("1234")
     create_tables_on_startup: bool = Field(default=False)
 
     class Config:

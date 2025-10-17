@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:16.2-alpine3.19
+    container_name: events-with-fast-api-postgres-test-1
+    environment:
+      - POSTGRES_DB=cleverea_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+    volumes:
+      - type: volume
+        source: postgres-test-data
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '5433:5432' # Use different port to avoid conflicts
+    networks:
+      - test-net
+  migrate:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - PYTHONPATH=/app
+      - POSTGRES_URL=postgresql+asyncpg://postgres:1234@postgres-test:5432/cleverea_test
+    volumes:
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+      - ./alembic/versions:/app/alembic/versions
+    depends_on:
+      - postgres-test
+    entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
+    command: ['upgrade', 'head']
+    networks:
+      - test-net
+volumes:
+  postgres-test-data:
+
+networks:
+  test-net:

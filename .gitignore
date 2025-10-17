@@ -15,3 +15,6 @@ wheels/
 # Database
 *.db
 *.db-*
+
+# Testing
+coverage.xml

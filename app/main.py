@@ -26,12 +26,13 @@ async def lifespan(app: FastAPI):
     await database.dispose()
 
 
-def create_app():
+def create_app(custom_settings=None):
     container = Container()
-    container.config.from_pydantic(settings)
+    app_settings = custom_settings or settings
+    container.config.from_pydantic(app_settings)
     app = FastAPI(
-        title=settings.app_title,
-        debug=settings.debug,
+        title=app_settings.app_title,
+        debug=app_settings.debug,
         dependencies=[],
         lifespan=lifespan,
     )

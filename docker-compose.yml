@@ -135,7 +135,7 @@ services:
       timeout: 5s
       retries: 5
     ports:
-      - "5432:5432"
+      - '5432:5432'
     networks:
       - default-net
 
@@ -149,10 +149,11 @@ services:
     volumes:
       - ./alembic:/app/alembic
       - ./alembic.ini:/app/alembic.ini
+      - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
-    entrypoint: ["uv", "run", "python", "-m", "alembic"]
-    command: ["revision", "--autogenerate", "-m", "auto"]
+    entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
+    command: ['revision', '--autogenerate', '-m', 'auto']
     networks:
       - default-net
 
@@ -166,10 +167,11 @@ services:
     volumes:
       - ./alembic:/app/alembic
       - ./alembic.ini:/app/alembic.ini
+      - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
-    entrypoint: ["uv", "run", "python", "-m", "alembic"]
-    command: ["upgrade", "head"]
+    entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
+    command: ['upgrade', 'head']
     networks:
       - default-net
   ruff-fix:
@@ -180,13 +182,13 @@ services:
     volumes:
       - ./app:/app/app
       - ./ruff.toml:/app/ruff.toml
-    entrypoint: ["uv", "run", "ruff"]
-    command: ["check", "app", "--fix"]
+    entrypoint: ['uv', 'run', 'ruff']
+    command: ['check', 'app', '--fix']
     networks:
       - default-net
     profiles:
       - dev
-    
+
   ruff-format:
     build:
       context: .
@@ -195,8 +197,8 @@ services:
     volumes:
       - ./app:/app/app
       - ./ruff.toml:/app/ruff.toml
-    entrypoint: ["uv", "run", "ruff"]
-    command: ["format", "app"]
+    entrypoint: ['uv', 'run', 'ruff']
+    command: ['format', 'app']
     networks:
       - default-net
     profiles:

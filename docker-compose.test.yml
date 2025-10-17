@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:16.2-alpine3.19
+    environment:
+      - POSTGRES_DB=cleverea_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+    volumes:
+      - type: volume
+        source: postgres-test-data
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '5433:5432' # Use different port to avoid conflicts
+    networks:
+      - test-net
+
+volumes:
+  postgres-test-data:
+
+networks:
+  test-net:

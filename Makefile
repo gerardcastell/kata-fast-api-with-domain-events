@@ -79,8 +79,8 @@ test-file:
 # Database migration targets
 makemigrations:
 	@echo "Generating new database migrations..."
-	docker-compose run --rm makemigrations
+	docker-compose -f docker-compose.test.yml run --rm makemigrations
 
 migrate:
 	@echo "Applying database migrations..."
-	docker-compose run --rm migrate
+	docker-compose -f docker-compose.test.yml run --rm migrate

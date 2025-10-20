@@ -9,9 +9,7 @@ class Database:
 
         # Single engine instance reused across the app lifetime
         self._async_engine = database_factory.build_async_engine(self._db_url)
-        self._session_factory = database_factory.build_async_session_factory(
-            self._async_engine
-        )
+        self._session_factory = database_factory.build_async_session_factory(self._async_engine)
 
     @asynccontextmanager
     async def session_factory(self):

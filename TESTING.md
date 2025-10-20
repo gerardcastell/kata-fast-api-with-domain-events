@@ -33,7 +33,7 @@ make test-coverage
 
 ```bash
 # Using the test runner script
-python run_tests.py
+python scripts/run_tests.py
 
 # Using pytest directly (requires database to be running)
 uv run pytest
@@ -161,10 +161,10 @@ You can control the database setup manually:
 
 ```bash
 # Skip database setup (assumes database is already running)
-python run_tests.py --no-setup
+python scripts/run_tests.py --no-setup
 
 # Skip database cleanup (useful for debugging)
-python run_tests.py --no-cleanup
+python scripts/run_tests.py --no-cleanup
 ```
 
 ## Coverage Reports
@@ -188,10 +188,10 @@ For CI/CD pipelines, use:
 
 ```bash
 # Run tests with XML coverage report
-python run_tests.py --cov-report=xml
+python scripts/run_tests.py --cov-report=xml
 
 # Run only unit tests (faster)
-python run_tests.py -m "unit"
+python scripts/run_tests.py -m "unit"
 ```
 
 ## Troubleshooting

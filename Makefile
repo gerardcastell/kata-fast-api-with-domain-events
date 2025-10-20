@@ -1,86 +1,181 @@
-# Makefile for events-with-fast-api project
+# Unified Command Toolkit for events-with-fast-api project
+# Combines functionality from debug.sh and original Makefile
 
-.PHONY: help test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-quick-all
+.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file
+
+# Colors for output
+RED := \033[0;31m
+GREEN := \033[0;32m
+YELLOW := \033[1;33m
+BLUE := \033[0;34m
+NC := \033[0m # No Color
 
 # Default target
 help:
-	@echo "Available targets:"
-	@echo "  test              - Run all tests with docker-compose database"
-	@echo "  test-unit         - Run unit tests only"
-	@echo "  test-integration  - Run integration tests only"
-	@echo "  test-coverage     - Run tests with coverage report"
-	@echo "  test-watch        - Run tests in watch mode"
-	@echo "  test-db-setup     - Set up test database only"
-	@echo "  test-db-cleanup   - Clean up test database"
-	@echo "  install-dev       - Install development dependencies"
-	@echo "  lint              - Run linting"
-	@echo "  format            - Format code"
-	@echo "  makemigrations    - Generate new database migrations"
-	@echo "  migrate           - Apply database migrations"
+	@echo "$(BLUE)Unified Command Toolkit for FastAPI Events App$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Development & Docker Commands:$(NC)"
+	@echo "  dev              - Start development environment with hot reload"
+	@echo "  debug            - Start debug environment (waits for debugger)"
+	@echo "  logs             - Show logs for dev service"
+	@echo "  shell            - Access container shell"
+	@echo "  db               - Access database shell"
+	@echo "  status           - Show container status"
+	@echo "  stop             - Stop all services"
+	@echo "  clean            - Stop and remove all containers/volumes"
+	@echo "  build            - Rebuild containers"
+	@echo ""
+	@echo "$(YELLOW)Testing Commands:$(NC)"
+	@echo "  test             - Run all tests with docker-compose database"
+	@echo "  test-unit        - Run unit tests only"
+	@echo "  test-integration - Run integration tests only"
+	@echo "  test-coverage    - Run tests with coverage report"
+	@echo "  test-watch       - Run tests in watch mode"
+	@echo "  test-quick       - Run quick tests (without docker database)"
+	@echo "  test-file        - Run specific test file (usage: make test-file FILE=path/to/test.py)"
+	@echo "  test-db-setup    - Set up test database only"
+	@echo "  test-db-cleanup  - Clean up test database"
+	@echo ""
+	@echo "$(YELLOW)Development Setup:$(NC)"
+	@echo "  install-dev      - Install development dependencies"
+	@echo "  lint             - Run linting"
+	@echo "  format           - Format code"
+	@echo "  makemigrations   - Generate new database migrations"
+	@echo "  migrate          - Apply database migrations"
+	@echo ""
+	@echo "$(YELLOW)Examples:$(NC)"
+	@echo "  make dev         # Start development environment"
+	@echo "  make logs        # View logs"
+	@echo "  make shell       # Access container"
+	@echo "  make test        # Run all tests"
+	@echo "  make test-file FILE=tests/test_main.py  # Run specific test"
 
-# Test targets
+# Development & Docker Commands
+dev:
+	@echo "$(BLUE)[INFO]$(NC) Starting development environment..."
+	@docker-compose --profile dev up --build -d
+	@echo "$(GREEN)[SUCCESS]$(NC) Development environment started!"
+	@echo "$(BLUE)[INFO]$(NC) Application available at: http://localhost:8001"
+	@echo "$(BLUE)[INFO]$(NC) View logs with: make logs"
+
+debug:
+	@echo "$(BLUE)[INFO]$(NC) Starting debug environment..."
+	@echo "$(YELLOW)[WARNING]$(NC) This will wait for a debugger to attach on port 5678"
+	@docker-compose --profile debug up --build
+
+logs:
+	@echo "$(BLUE)[INFO]$(NC) Showing logs for development service..."
+	@docker-compose --profile dev logs -f app-dev
+
+shell:
+	@echo "$(BLUE)[INFO]$(NC) Accessing container shell..."
+	@docker-compose --profile dev exec app-dev /bin/bash
+
+db:
+	@echo "$(BLUE)[INFO]$(NC) Accessing database shell..."
+	@docker-compose --profile dev exec app-dev sqlite3 /app/data/app.db
+
+status:
+	@echo "$(BLUE)[INFO]$(NC) Container status:"
+	@docker-compose --profile dev ps
+
+stop:
+	@echo "$(BLUE)[INFO]$(NC) Stopping all services..."
+	@docker-compose --profile dev down
+	@docker-compose --profile debug down
+	@echo "$(GREEN)[SUCCESS]$(NC) All services stopped!"
+
+clean:
+	@echo "$(YELLOW)[WARNING]$(NC) This will remove all containers and volumes (including database data)"
+	@read -p "Are you sure? (y/N): " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		echo "$(BLUE)[INFO]$(NC) Cleaning up..."; \
+		docker-compose --profile dev down -v; \
+		docker-compose --profile debug down -v; \
+		docker system prune -f; \
+		echo "$(GREEN)[SUCCESS]$(NC) Cleanup completed!"; \
+	else \
+		echo "$(BLUE)[INFO]$(NC) Cleanup cancelled."; \
+	fi
+
+build:
+	@echo "$(BLUE)[INFO]$(NC) Rebuilding containers..."
+	@docker-compose --profile dev build --no-cache
+	@docker-compose --profile debug build --no-cache
+	@echo "$(GREEN)[SUCCESS]$(NC) Containers rebuilt!"
+
+# Testing Commands
 test:
-	@echo "Running all tests with docker-compose database..."
-	python run_tests.py
+	@echo "$(BLUE)[INFO]$(NC) Running all tests with docker-compose database..."
+	@python tests/run_tests.py
 
 test-unit:
-	@echo "Running unit tests..."
-	python run_tests.py -m "unit"
+	@echo "$(BLUE)[INFO]$(NC) Running unit tests..."
+	@python tests/run_tests.py -m "unit"
 
 test-integration:
-	@echo "Running integration tests..."
-	python run_tests.py -m "integration"
+	@echo "$(BLUE)[INFO]$(NC) Running integration tests..."
+	@python tests/run_tests.py -m "integration"
 
 test-coverage:
-	@echo "Running tests with coverage..."
-	python run_tests.py --cov-report=html --cov-report=term-missing
+	@echo "$(BLUE)[INFO]$(NC) Running tests with coverage..."
+	@python tests/run_tests.py --cov-report=html --cov-report=term-missing
 
 test-watch:
-	@echo "Running tests in watch mode..."
-	python run_tests.py -f
+	@echo "$(BLUE)[INFO]$(NC) Running tests in watch mode..."
+	@python tests/run_tests.py -f
+
+test-quick:
+	@echo "$(BLUE)[INFO]$(NC) Running quick tests (without docker database)..."
+	@QUICK_TEST=true uv run pytest tests/ -v
+
+test-file:
+	@if [ -z "$(FILE)" ]; then \
+		echo "$(RED)[ERROR]$(NC) Please specify FILE=path/to/test_file.py"; \
+		echo "Usage: make test-file FILE=tests/test_main.py"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)[INFO]$(NC) Running test file: $(FILE)"
+	@python tests/run_tests.py tests/$(FILE)
 
 # Database management
 test-db-setup:
-	@echo "Setting up test database..."
-	docker-compose -f docker-compose.test.yml up -d postgres-test
-	@echo "Waiting for database to be ready..."
+	@echo "$(BLUE)[INFO]$(NC) Setting up test database..."
+	@docker-compose -f tests/docker-compose.test.yml up -d postgres-test
+	@echo "$(BLUE)[INFO]$(NC) Waiting for database to be ready..."
 	@sleep 10
-	@echo "Test database is ready!"
+	@echo "$(GREEN)[SUCCESS]$(NC) Test database is ready!"
 
 test-db-cleanup:
-	@echo "Cleaning up test database..."
-	docker-compose -f docker-compose.test.yml down -v
+	@echo "$(BLUE)[INFO]$(NC) Cleaning up test database..."
+	@docker-compose -f tests/docker-compose.test.yml down -v
+	@echo "$(GREEN)[SUCCESS]$(NC) Test database cleaned up!"
 
 # Development setup
 install-dev:
-	@echo "Installing development dependencies..."
-	uv sync --group dev
+	@echo "$(BLUE)[INFO]$(NC) Installing development dependencies..."
+	@uv sync --group dev
+	@echo "$(GREEN)[SUCCESS]$(NC) Development dependencies installed!"
 
 # Code quality
 lint:
-	@echo "Running linting..."
-	uv run ruff check .
+	@echo "$(BLUE)[INFO]$(NC) Running linting..."
+	@uv run ruff check .
+	@echo "$(GREEN)[SUCCESS]$(NC) Linting completed!"
 
 format:
-	@echo "Formatting code..."
-	uv run ruff format .
-
-# Quick test without docker (for development)
-test-quick:
-	@echo "Running quick tests (without docker database)..."
-	QUICK_TEST=true uv run pytest tests/ -v
-
-# Run specific test file
-test-file:
-	@echo "Usage: make test-file FILE=path/to/test_file.py"
-	@if [ -z "$(FILE)" ]; then echo "Please specify FILE=path/to/test_file.py"; exit 1; fi
-	python run_tests.py tests/$(FILE)
+	@echo "$(BLUE)[INFO]$(NC) Formatting code..."
+	@uv run ruff format .
+	@echo "$(GREEN)[SUCCESS]$(NC) Code formatting completed!"
 
 # Database migration targets
 makemigrations:
-	@echo "Generating new database migrations..."
-	docker-compose -f docker-compose.test.yml run --rm makemigrations
+	@echo "$(BLUE)[INFO]$(NC) Generating new database migrations..."
+	@docker-compose -f tests/docker-compose.test.yml run --rm makemigrations
+	@echo "$(GREEN)[SUCCESS]$(NC) Migrations generated!"
 
 migrate:
-	@echo "Applying database migrations..."
-	docker-compose -f docker-compose.test.yml run --rm migrate
+	@echo "$(BLUE)[INFO]$(NC) Applying database migrations..."
+	@docker-compose -f tests/docker-compose.test.yml run --rm migrate
+	@echo "$(GREEN)[SUCCESS]$(NC) Migrations applied!"

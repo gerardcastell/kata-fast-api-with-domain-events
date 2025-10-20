@@ -1,6 +1,7 @@
 import pytest
-from fastapi.testclient import TestClient
 from httpx import AsyncClient
+
+from fastapi.testclient import TestClient
 
 
 @pytest.mark.unit
@@ -35,4 +36,3 @@ async def test_health_ready_async(async_test_client: AsyncClient):
     response = await async_test_client.get("/health/ready")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
-

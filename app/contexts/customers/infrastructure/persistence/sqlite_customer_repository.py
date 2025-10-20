@@ -7,7 +7,7 @@ from app.contexts.customers.domain.repositories.customer_repository import (
     CustomerRepository,
 )
 from app.contexts.customers.infrastructure.persistence.models.customer import (
-     CustomerModel,
+    CustomerModel,
 )
 
 
@@ -22,18 +22,18 @@ class SQLiteCustomerRepository(CustomerRepository):
                 id=customer.id,
                 name=customer.name,
                 email=customer.email,
-                activePoliciesCount=customer.activePoliciesCount
+                activePoliciesCount=customer.activePoliciesCount,
             )
             session.add(customer_model)
             await session.flush()
             await session.refresh(customer_model)
-            
+
             # Convert back to domain entity
             return Customer(
                 id=customer_model.id,
                 name=customer_model.name,
                 email=customer_model.email,
-                activePoliciesCount=customer_model.activePoliciesCount
+                activePoliciesCount=customer_model.activePoliciesCount,
             )
 
     async def find_by_id(self, id: str) -> Customer | None:
@@ -41,27 +41,27 @@ class SQLiteCustomerRepository(CustomerRepository):
             customer_model = await session.get(CustomerModel, id)
             if customer_model is None:
                 return None
-            
+
             # Convert persistence model to domain entity
             return Customer(
                 id=customer_model.id,
                 name=customer_model.name,
                 email=customer_model.email,
-                activePoliciesCount=customer_model.activePoliciesCount
+                activePoliciesCount=customer_model.activePoliciesCount,
             )
 
     async def find_all(self) -> Iterable[Customer]:
         async with self.session_factory() as session:
             res = await session.exec(select(CustomerModel))
             customer_models = res.all()
-            
+
             # Convert persistence models to domain entities
             return [
                 Customer(
                     id=str(customer_model.id),
                     name=customer_model.name,
                     email=customer_model.email,
-                    activePoliciesCount=customer_model.activePoliciesCount
+                    activePoliciesCount=customer_model.activePoliciesCount,
                 )
                 for customer_model in customer_models
             ]

@@ -19,7 +19,8 @@ class PostgresDatabaseFactory(AsyncDatabaseFactory):
         return engine
 
     def build_async_session_factory(
-        self, engine: AsyncEngine,
+        self,
+        engine: AsyncEngine,
     ) -> async_sessionmaker[AsyncSession]:
         """
         Create an async session factory for PostgreSQL.

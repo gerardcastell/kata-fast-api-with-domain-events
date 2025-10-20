@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings
 
 class TestConfig(BaseSettings):
     """Test-specific configuration that overrides the default settings."""
+
     app_title: str = Field("Insurance API - Test")
     debug: bool = Field(True)
     log_level: str = Field("DEBUG")
@@ -35,15 +36,17 @@ def get_test_settings():
 
 
 # Set environment variables for testing
-os.environ.update({
-    "POSTGRES_URL": "postgresql+asyncpg://postgres:1234@localhost:5433/cleverea_test",
-    "PSQL_DB_HOST": "localhost",
-    "PSQL_DB_PORT": "5433",
-    "PSQL_DB_DATABASE": "cleverea_test",
-    "PSQL_DB_USERNAME": "postgres",
-    "PSQL_DB_PASSWORD": "1234",
-    "CREATE_TABLES_ON_STARTUP": "true",
-    "DEBUG": "true",
-    "ENVIRONMENT": "test",
-    "LOG_LEVEL": "DEBUG"
-})
+os.environ.update(
+    {
+        "POSTGRES_URL": "postgresql+asyncpg://postgres:1234@localhost:5433/cleverea_test",
+        "PSQL_DB_HOST": "localhost",
+        "PSQL_DB_PORT": "5433",
+        "PSQL_DB_DATABASE": "cleverea_test",
+        "PSQL_DB_USERNAME": "postgres",
+        "PSQL_DB_PASSWORD": "1234",
+        "CREATE_TABLES_ON_STARTUP": "true",
+        "DEBUG": "true",
+        "ENVIRONMENT": "test",
+        "LOG_LEVEL": "DEBUG",
+    }
+)

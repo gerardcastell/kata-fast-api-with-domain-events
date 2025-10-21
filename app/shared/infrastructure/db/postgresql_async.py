@@ -5,7 +5,7 @@ from app.shared.infrastructure.db.interface import AsyncDatabaseFactory
 
 
 class PostgresDatabaseFactory(AsyncDatabaseFactory):
-    def build_async_engine(url: str) -> AsyncEngine:
+    def build_async_engine(self, url: str) -> AsyncEngine:
         """
         Create an async SQLAlchdemy engine for PostgreSQL.
         """
@@ -19,6 +19,7 @@ class PostgresDatabaseFactory(AsyncDatabaseFactory):
         return engine
 
     def build_async_session_factory(
+        self,
         engine: AsyncEngine,
     ) -> async_sessionmaker[AsyncSession]:
         """

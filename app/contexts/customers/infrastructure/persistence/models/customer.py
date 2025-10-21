@@ -1,8 +1,9 @@
 from sqlmodel import Field, SQLModel
 
 
-class Customer(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    name: str = Field(index=True)
+class CustomerModel(SQLModel, table=True):
+    __tablename__ = "customer"
+    id: str = Field(primary_key=True)
+    name: str = Field()
     email: str = Field(index=True)
     activePoliciesCount: int = Field()

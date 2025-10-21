@@ -14,11 +14,15 @@ class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     sqlite_database = providers.Singleton(
-        Database, db_url=config.sqlite_url, database_factory=SQLiteDatabaseFactory
+        Database,
+        db_url=config.sqlite_url,
+        database_factory=providers.Factory(SQLiteDatabaseFactory),
     )
 
     postgres_database = providers.Singleton(
-        Database, db_url=config.postgres_url, database_factory=PostgresDatabaseFactory
+        Database,
+        db_url=config.postgres_url,
+        database_factory=providers.Factory(PostgresDatabaseFactory),
     )
 
     database = postgres_database

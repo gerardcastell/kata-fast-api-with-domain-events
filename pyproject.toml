@@ -24,6 +24,7 @@ dependencies = [
 dev = [
     "debugpy>=1.8.17",
     "httpx>=0.28.1",
+    "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-asyncio>=0.24.0",
     "pytest-cov>=6.0.0",
@@ -51,3 +52,6 @@ markers = [
     "unit: marks tests as unit tests",
 ]
 asyncio_mode = "auto"
+
+[tool.mypy]
+plugins = ['pydantic.mypy']

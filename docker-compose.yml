@@ -204,6 +204,22 @@ services:
     profiles:
       - dev
 
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+      - "8080:8080"
+    environment:
+      - SERVICES=sqs
+      - AWS_DEFAULT_REGION=eu-west-1
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localstack
+    volumes:
+      - ./localstack:/etc/localstack/init/ready.d
+      - /var/run/docker.sock:/var/run/docker.sock
+    profiles:
+      - dev
 volumes:
   data:
   postgres-data:

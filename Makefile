@@ -172,10 +172,10 @@ format:
 # Database migration targets
 makemigrations:
 	@echo "$(BLUE)[INFO]$(NC) Generating new database migrations..."
-	@docker compose -f docker-compose.yml run --rm makemigrations
+	@docker-compose -f docker-compose.yml run --rm makemigrations
 	@echo "$(GREEN)[SUCCESS]$(NC) Migrations generated!"
 
 migrate:
 	@echo "$(BLUE)[INFO]$(NC) Applying database migrations..."
-	@docker compose -f docker-compose.yml run --rm migrate
+	@docker-compose -f docker-compose.yml run --rm migrate
 	@echo "$(GREEN)[SUCCESS]$(NC) Migrations applied!"

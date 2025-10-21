@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     ports:
       - '8000:8000'
     environment:
@@ -24,7 +24,7 @@ services:
       - postgres
     restart: unless-stopped
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health/live']
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8000/health/live' ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -34,7 +34,7 @@ services:
   app-dev:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     ports:
       - '8001:8000'
       - '5678:5678' # Debug port
@@ -55,18 +55,7 @@ services:
       - default-net
     depends_on:
       - postgres
-    command:
-      [
-        'uv',
-        'run',
-        'uvicorn',
-        'app.main:app',
-        '--host',
-        '0.0.0.0',
-        '--port',
-        '8000',
-        '--reload',
-      ]
+    command: [ 'uv', 'run', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload' ]
     profiles:
       - dev
     restart: unless-stopped
@@ -75,7 +64,7 @@ services:
   app-debug:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     ports:
       - '8002:8000'
       - '5678:5678' # Debug port
@@ -96,25 +85,7 @@ services:
       - default-net
     depends_on:
       - postgres
-    command:
-      [
-        'uv',
-        'run',
-        'python',
-        '-m',
-        'debugpy',
-        '--listen',
-        '0.0.0.0:5678',
-        '--wait-for-client',
-        '-m',
-        'uvicorn',
-        'app.main:app',
-        '--host',
-        '0.0.0.0',
-        '--port',
-        '8000',
-        '--reload',
-      ]
+    command: [ 'uv', 'run', 'python', '-m', 'debugpy', '--listen', '0.0.0.0:5678', '--wait-for-client', '-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload' ]
     profiles:
       - debug
     restart: unless-stopped
@@ -142,7 +113,7 @@ services:
   makemigrations:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     environment:
       - PYTHONPATH=/app
       - POSTGRES_URL=${postgres_url}
@@ -152,15 +123,15 @@ services:
       - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
-    entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
-    command: ['revision', '--autogenerate', '-m', 'auto']
+    entrypoint: [ 'uv', 'run', 'python', '-m', 'alembic' ]
+    command: [ 'revision', '--autogenerate', '-m', 'auto' ]
     networks:
       - default-net
 
   migrate:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     environment:
       - PYTHONPATH=/app
       - POSTGRES_URL=${postgres_url}
@@ -170,20 +141,20 @@ services:
       - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
-    entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
-    command: ['upgrade', 'head']
+    entrypoint: [ 'uv', 'run', 'python', '-m', 'alembic' ]
+    command: [ 'upgrade', 'head' ]
     networks:
       - default-net
   ruff-fix:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     working_dir: /app
     volumes:
       - ./app:/app/app
       - ./ruff.toml:/app/ruff.toml
-    entrypoint: ['uv', 'run', 'ruff']
-    command: ['check', 'app', '--fix']
+    entrypoint: [ 'uv', 'run', 'ruff' ]
+    command: [ 'check', 'app', '--fix' ]
     networks:
       - default-net
     profiles:
@@ -192,13 +163,13 @@ services:
   ruff-format:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     working_dir: /app
     volumes:
       - ./app:/app/app
       - ./ruff.toml:/app/ruff.toml
-    entrypoint: ['uv', 'run', 'ruff']
-    command: ['format', 'app']
+    entrypoint: [ 'uv', 'run', 'ruff' ]
+    command: [ 'format', 'app' ]
     networks:
       - default-net
     profiles:
@@ -207,6 +178,7 @@ services:
 volumes:
   data:
   postgres-data:
+
 
 networks:
   default-net:

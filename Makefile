@@ -1,7 +1,7 @@
 # Unified Command Toolkit for events-with-fast-api project
 # Combines functionality from debug.sh and original Makefile
 
-.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file
+.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file typecheck
 
 # Colors for output
 RED := \033[0;31m
@@ -40,6 +40,7 @@ help:
 	@echo "  install-dev      - Install development dependencies"
 	@echo "  lint             - Run linting"
 	@echo "  format           - Format code"
+	@echo "  typecheck        - Run mypy type checking"
 	@echo "  makemigrations   - Generate new database migrations"
 	@echo "  migrate          - Apply database migrations"
 	@echo ""
@@ -169,6 +170,11 @@ format:
 	@uv run ruff format .
 	@echo "$(GREEN)[SUCCESS]$(NC) Code formatting completed!"
 
+typecheck:
+	@echo "$(BLUE)[INFO]$(NC) Running mypy type checking..."
+	@uv run mypy app/
+	@echo "$(GREEN)[SUCCESS]$(NC) Type checking completed!"
+
 # Database migration targets
 makemigrations:
 	@echo "$(BLUE)[INFO]$(NC) Generating new database migrations..."
@@ -177,5 +183,11 @@ makemigrations:
 
 migrate:
 	@echo "$(BLUE)[INFO]$(NC) Applying database migrations..."
+<<<<<<< HEAD
 	@docker-compose -f docker-compose.yml run --rm migrate
 	@echo "$(GREEN)[SUCCESS]$(NC) Migrations applied!"
+=======
+	@docker-compose -f tests/docker-compose.test.yml run --rm migrate
+	@echo "$(GREEN)[SUCCESS]$(NC) Migrations applied!"
+
+>>>>>>> 441336e (feat(typechecking): add typecheck with mypy + fix type errors)

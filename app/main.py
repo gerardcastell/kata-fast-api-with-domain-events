@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
 
 import uvicorn
 from sqlmodel import SQLModel
@@ -10,9 +11,16 @@ from app.contexts.customers.infrastructure.api import routes as customer_module
 from app.shared.containers.main import Container
 from app.shared.infrastructure.api.health import routes as health_module
 
+if TYPE_CHECKING:
+    from app.shared.containers.main import Container
+
+
+class FastAPIWithContainer(FastAPI):
+    container: Container
+
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPIWithContainer):
     # Startup
     container: Container = app.container
     if container.config.create_tables_on_startup():
@@ -30,7 +38,7 @@ def create_app(custom_settings=None):
     container = Container()
     app_settings = custom_settings or settings
     container.config.from_pydantic(app_settings)
-    app = FastAPI(
+    app = FastAPIWithContainer(
         title=app_settings.app_title,
         debug=app_settings.debug,
         dependencies=[],

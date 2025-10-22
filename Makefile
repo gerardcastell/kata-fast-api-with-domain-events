@@ -1,7 +1,6 @@
 # Unified Command Toolkit for events-with-fast-api project
-# Combines functionality from debug.sh and original Makefile
 
-.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file typecheck
+.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file typecheck precommit-setup precommit-run precommit-update precommit-clean
 
 # Colors for output
 RED := \033[0;31m
@@ -43,6 +42,12 @@ help:
 	@echo "  typecheck        - Run mypy type checking"
 	@echo "  makemigrations   - Generate new database migrations"
 	@echo "  migrate          - Apply database migrations"
+	@echo ""
+	@echo "$(YELLOW)Pre-commit Hooks:$(NC)"
+	@echo "  precommit-setup  - Setup pre-commit hooks"
+	@echo "  precommit-run    - Run pre-commit on all files"
+	@echo "  precommit-update - Update pre-commit hooks"
+	@echo "  precommit-clean  - Clean pre-commit cache"
 	@echo ""
 	@echo "$(YELLOW)Examples:$(NC)"
 	@echo "  make dev         # Start development environment"
@@ -186,3 +191,23 @@ migrate:
 	@docker-compose -f tests/docker-compose.test.yml run --rm migrate
 	@echo "$(GREEN)[SUCCESS]$(NC) Migrations applied!"
 
+# Pre-commit hooks
+precommit-setup:
+	@echo "$(BLUE)[INFO]$(NC) Setting up pre-commit hooks..."
+	@./scripts/setup-precommit.sh
+	@echo "$(GREEN)[SUCCESS]$(NC) Pre-commit hooks setup completed!"
+
+precommit-run:
+	@echo "$(BLUE)[INFO]$(NC) Running pre-commit on all files..."
+	@pre-commit run --all-files
+	@echo "$(GREEN)[SUCCESS]$(NC) Pre-commit checks completed!"
+
+precommit-update:
+	@echo "$(BLUE)[INFO]$(NC) Updating pre-commit hooks..."
+	@pre-commit autoupdate
+	@echo "$(GREEN)[SUCCESS]$(NC) Pre-commit hooks updated!"
+
+precommit-clean:
+	@echo "$(BLUE)[INFO]$(NC) Cleaning pre-commit cache..."
+	@pre-commit clean
+	@echo "$(GREEN)[SUCCESS]$(NC) Pre-commit cache cleaned!"

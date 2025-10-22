@@ -3,7 +3,7 @@
 import uuid
 
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, QueryParams
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +18,9 @@ async def test_create_customer_integration(
     async_test_client: AsyncClient, test_db_session: AsyncSession
 ):
     """Test creating a customer through the API with database integration."""
-    customer_data = {"name": "John Doe", "email": "john.doe@example.com", "activePoliciesCount": 0}
+    customer_data = QueryParams(
+        {"name": "John Doe", "email": "john.doe@example.com", "activePoliciesCount": 0}
+    )
 
     # Create customer via API
     response = await async_test_client.post("/customers/", params=customer_data)

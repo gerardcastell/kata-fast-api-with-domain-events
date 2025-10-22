@@ -138,6 +138,34 @@ uv run ruff format .
 uv run ruff check .
 ```
 
+### Code Quality & Pre-commit Hooks
+
+This project includes comprehensive pre-commit hooks for code quality:
+
+```bash
+# Setup pre-commit hooks (first time)
+make precommit-setup
+
+# Run pre-commit on all files
+make precommit-run
+
+# Update pre-commit hooks
+make precommit-update
+
+# Clean pre-commit cache
+make precommit-clean
+```
+
+**Pre-commit hooks include:**
+
+- **Ruff**: Fast Python linter and formatter
+- **MyPy**: Static type checking
+- **Bandit**: Security vulnerability scanning
+- **Commitizen**: Conventional commit message validation
+- **Custom hooks**: Test coverage, Docker build validation
+
+For detailed pre-commit documentation, see [PRE_COMMIT.md](./PRE_COMMIT.md).
+
 ## 📊 API Health Check
 
 - `GET /health/live` - Liveness probe

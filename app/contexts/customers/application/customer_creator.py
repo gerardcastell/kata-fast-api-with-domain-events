@@ -1,5 +1,3 @@
-from typing import Optional
-
 from app.contexts.customers.domain.entities.customer import Customer
 from app.contexts.customers.domain.repositories.customer_repository import (
     CustomerRepository,
@@ -17,7 +15,6 @@ class CustomerCreator:
         email: str | None = None,
         activePoliciesCount: int | None = None,
     ) -> Customer:
-    
         # Only pass id if it's provided, let Customer generate it if None
 
         customer = Customer(id=id, name=name, email=email, activePoliciesCount=activePoliciesCount)

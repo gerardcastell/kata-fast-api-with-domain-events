@@ -21,6 +21,7 @@ class SQLiteDatabaseFactory(AsyncDatabaseFactory):
         return engine
 
     def build_async_session_factory(
-        self, engine: AsyncEngine,
+        self,
+        engine: AsyncEngine,
     ) -> async_sessionmaker[AsyncSession]:
         return async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)

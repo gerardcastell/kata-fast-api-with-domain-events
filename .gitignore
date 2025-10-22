@@ -18,3 +18,8 @@ wheels/
 
 # Testing
 coverage.xml
+.coverage
+htmlcov/
+
+# Security reports
+bandit-report.json

@@ -190,13 +190,9 @@ Configuration is managed through:
 ## 📚 Documentation
 
 - **API Documentation**: Available at `/docs` (Swagger UI)
-- **Docker Guide**: See `DOCKER.md` for detailed Docker usage
-- **Architecture**: Follows DDD and Clean Architecture principles
+- **Docker Guide**: See `docs/DOCKER.md` for detailed Docker usage
+- **Testing Guide**: See `docs/TESTING.md` for detailed testing usage
 
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
-
----
-
-For detailed Docker usage instructions, see [DOCKER.md](./DOCKER.md).

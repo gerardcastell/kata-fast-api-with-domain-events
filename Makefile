@@ -59,7 +59,7 @@ help:
 # Development & Docker Commands
 dev:
 	@echo "$(BLUE)[INFO]$(NC) Starting development environment..."
-	@docker-compose --profile dev up --build -d
+	@docker-compose up app-dev --build -d
 	@echo "$(GREEN)[SUCCESS]$(NC) Development environment started!"
 	@echo "$(BLUE)[INFO]$(NC) Application available at: http://localhost:8001"
 	@echo "$(BLUE)[INFO]$(NC) View logs with: make logs"
@@ -67,28 +67,28 @@ dev:
 debug:
 	@echo "$(BLUE)[INFO]$(NC) Starting debug environment..."
 	@echo "$(YELLOW)[WARNING]$(NC) This will wait for a debugger to attach on port 5678"
-	@docker-compose --profile debug up --build
+	@docker-compose up app-debug --build
 
 logs:
 	@echo "$(BLUE)[INFO]$(NC) Showing logs for development service..."
-	@docker-compose --profile dev logs -f app-dev
+	@docker-compose logs -f app-dev
 
 shell:
 	@echo "$(BLUE)[INFO]$(NC) Accessing container shell..."
-	@docker-compose --profile dev exec app-dev /bin/bash
+	@docker-compose exec app-dev /bin/bash
 
 db:
 	@echo "$(BLUE)[INFO]$(NC) Accessing database shell..."
-	@docker-compose --profile dev exec app-dev sqlite3 /app/data/app.db
+	@docker-compose exec postgres psql -U postgres -d cleverea
 
 status:
 	@echo "$(BLUE)[INFO]$(NC) Container status:"
-	@docker-compose --profile dev ps
+	@docker-compose ps
 
 stop:
 	@echo "$(BLUE)[INFO]$(NC) Stopping all services..."
-	@docker-compose --profile dev down
-	@docker-compose --profile debug down
+	@docker-compose down app-dev
+	@docker-compose down app-debug
 	@echo "$(GREEN)[SUCCESS]$(NC) All services stopped!"
 
 clean:
@@ -97,8 +97,8 @@ clean:
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
 		echo "$(BLUE)[INFO]$(NC) Cleaning up..."; \
-		docker-compose --profile dev down -v; \
-		docker-compose --profile debug down -v; \
+		docker-compose down app-dev -v; \
+		docker-compose down app-debug -v; \
 		docker system prune -f; \
 		echo "$(GREEN)[SUCCESS]$(NC) Cleanup completed!"; \
 	else \
@@ -107,8 +107,8 @@ clean:
 
 build:
 	@echo "$(BLUE)[INFO]$(NC) Rebuilding containers..."
-	@docker-compose --profile dev build --no-cache
-	@docker-compose --profile debug build --no-cache
+	@docker-compose build app-dev --no-cache
+	@docker-compose build app-debug --no-cache
 	@echo "$(GREEN)[SUCCESS]$(NC) Containers rebuilt!"
 
 # Testing Commands

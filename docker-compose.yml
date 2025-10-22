@@ -24,7 +24,7 @@ services:
       - postgres
     restart: unless-stopped
     healthcheck:
-      test: [ 'CMD', 'curl', '-f', 'http://localhost:8000/health/live' ]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health/live']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -55,9 +55,18 @@ services:
       - default-net
     depends_on:
       - postgres
-    command: [ 'uv', 'run', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload' ]
-    profiles:
-      - dev
+    command:
+      [
+        'uv',
+        'run',
+        'uvicorn',
+        'app.main:app',
+        '--host',
+        '0.0.0.0',
+        '--port',
+        '8000',
+        '--reload',
+      ]
     restart: unless-stopped
 
   # Debug service with debugpy
@@ -85,9 +94,25 @@ services:
       - default-net
     depends_on:
       - postgres
-    command: [ 'uv', 'run', 'python', '-m', 'debugpy', '--listen', '0.0.0.0:5678', '--wait-for-client', '-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload' ]
-    profiles:
-      - debug
+    command:
+      [
+        'uv',
+        'run',
+        'python',
+        '-m',
+        'debugpy',
+        '--listen',
+        '0.0.0.0:5678',
+        '--wait-for-client',
+        '-m',
+        'uvicorn',
+        'app.main:app',
+        '--host',
+        '0.0.0.0',
+        '--port',
+        '8000',
+        '--reload',
+      ]
     restart: unless-stopped
 
   postgres:
@@ -123,8 +148,8 @@ services:
       - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
-    entrypoint: [ 'uv', 'run', 'python', '-m', 'alembic' ]
-    command: [ 'revision', '--autogenerate', '-m', 'auto' ]
+    entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
+    command: ['revision', '--autogenerate', '-m', 'auto']
     networks:
       - default-net
 
@@ -141,8 +166,8 @@ services:
       - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
-    entrypoint: [ 'uv', 'run', 'python', '-m', 'alembic' ]
-    command: [ 'upgrade', 'head' ]
+    entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
+    command: ['upgrade', 'head']
     networks:
       - default-net
   ruff-fix:
@@ -153,12 +178,10 @@ services:
     volumes:
       - ./app:/app/app
       - ./ruff.toml:/app/ruff.toml
-    entrypoint: [ 'uv', 'run', 'ruff' ]
-    command: [ 'check', 'app', '--fix' ]
+    entrypoint: ['uv', 'run', 'ruff']
+    command: ['check', 'app', '--fix']
     networks:
       - default-net
-    profiles:
-      - dev
 
   ruff-format:
     build:
@@ -168,17 +191,14 @@ services:
     volumes:
       - ./app:/app/app
       - ./ruff.toml:/app/ruff.toml
-    entrypoint: [ 'uv', 'run', 'ruff' ]
-    command: [ 'format', 'app' ]
+    entrypoint: ['uv', 'run', 'ruff']
+    command: ['format', 'app']
     networks:
       - default-net
-    profiles:
-      - dev
 
 volumes:
   data:
   postgres-data:
-
 
 networks:
   default-net:

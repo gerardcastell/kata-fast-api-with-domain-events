@@ -188,16 +188,8 @@ makemigrations:
 
 migrate:
 	@echo "$(BLUE)[INFO]$(NC) Applying database migrations..."
-<<<<<<< HEAD
 	@docker-compose -f docker-compose.yml run --rm migrate
 	@echo "$(GREEN)[SUCCESS]$(NC) Migrations applied!"
-=======
-	@docker-compose -f tests/docker-compose.test.yml run --rm migrate
-	@echo "$(GREEN)[SUCCESS]$(NC) Migrations applied!"
-
-<<<<<<< HEAD
->>>>>>> 441336e (feat(typechecking): add typecheck with mypy + fix type errors)
-=======
 # Pre-commit hooks
 precommit-setup:
 	@echo "$(BLUE)[INFO]$(NC) Setting up pre-commit hooks..."
@@ -218,4 +210,3 @@ precommit-clean:
 	@echo "$(BLUE)[INFO]$(NC) Cleaning pre-commit cache..."
 	@pre-commit clean
 	@echo "$(GREEN)[SUCCESS]$(NC) Pre-commit cache cleaned!"
->>>>>>> 9b4ae70 (feat(pre-commit): integrate pre-commit hooks for code quality and security)

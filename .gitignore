@@ -20,6 +20,7 @@ wheels/
 .vscode/settings.json
 
 # Testing
+coverage.xml
 .coverage
 htmlcov/
 

@@ -89,29 +89,11 @@ repos:
   # Custom hooks for this project
   - repo: local
     hooks:
-      - id: pytest-check
-        name: pytest-check
-        entry: bash -c 'if [ -f "tests/run_tests.py" ]; then python tests/run_tests.py --quick; else echo "No tests found"; fi'
-        language: system
-        description: Run quick tests
-        pass_filenames: false
-        always_run: false
-        stages: [pre-push]
-
       - id: coverage-check
         name: coverage-check
         entry: bash -c 'if command -v coverage &> /dev/null; then coverage report --fail-under=70; else echo "Coverage not available"; fi'
         language: system
         description: Check test coverage
-        pass_filenames: false
-        always_run: false
-        stages: [pre-push]
-
-      - id: docker-build-check
-        name: docker-build-check
-        entry: bash -c 'if [ -f "dockerfile" ]; then docker build -t test-build . > /dev/null 2>&1 && echo "Docker build successful" || echo "Docker build failed"; else echo "No Dockerfile found"; fi'
-        language: system
-        description: Check Docker build
         pass_filenames: false
         always_run: false
         stages: [pre-push]

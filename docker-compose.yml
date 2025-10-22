@@ -55,6 +55,7 @@ services:
       - default-net
     depends_on:
       - postgres
+      - localstack
     command:
       [
         'uv',

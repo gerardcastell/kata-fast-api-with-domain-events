@@ -138,6 +138,34 @@ uv run ruff format .
 uv run ruff check .
 ```
 
+### Code Quality & Pre-commit Hooks
+
+This project includes comprehensive pre-commit hooks for code quality:
+
+```bash
+# Setup pre-commit hooks (first time)
+make precommit-setup
+
+# Run pre-commit on all files
+make precommit-run
+
+# Update pre-commit hooks
+make precommit-update
+
+# Clean pre-commit cache
+make precommit-clean
+```
+
+**Pre-commit hooks include:**
+
+- **Ruff**: Fast Python linter and formatter
+- **MyPy**: Static type checking
+- **Bandit**: Security vulnerability scanning
+- **Commitizen**: Conventional commit message validation
+- **Custom hooks**: Test coverage, Docker build validation
+
+For detailed pre-commit documentation, see [PRE_COMMIT.md](./PRE_COMMIT.md).
+
 ## 📊 API Health Check
 
 - `GET /health/live` - Liveness probe
@@ -162,13 +190,9 @@ Configuration is managed through:
 ## 📚 Documentation
 
 - **API Documentation**: Available at `/docs` (Swagger UI)
-- **Docker Guide**: See `DOCKER.md` for detailed Docker usage
-- **Architecture**: Follows DDD and Clean Architecture principles
+- **Docker Guide**: See `docs/DOCKER.md` for detailed Docker usage
+- **Testing Guide**: See `docs/TESTING.md` for detailed testing usage
 
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
-
----
-
-For detailed Docker usage instructions, see [DOCKER.md](./DOCKER.md).

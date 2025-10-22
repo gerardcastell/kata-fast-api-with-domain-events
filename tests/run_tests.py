@@ -102,7 +102,7 @@ def run_pytest(pytest_args):
     }
 
     # Run pytest
-    result = subprocess.run(["uv", "run", "pytest"] + pytest_args, env=env)
+    result = subprocess.run(["uv", "run", "pytest"] + pytest_args, check=False, env=env)
 
     return result.returncode
 

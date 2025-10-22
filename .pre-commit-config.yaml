@@ -1,0 +1,118 @@
+# Pre-commit configuration for FastAPI project with best practices
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # File checks
+      - id: trailing-whitespace
+        description: Remove trailing whitespace
+      - id: end-of-file-fixer
+        description: Ensure files end with a newline
+      - id: check-yaml
+        description: Check YAML syntax
+        args: ['--unsafe'] # Allow custom YAML tags
+      - id: check-json
+        description: Check JSON syntax
+      - id: check-toml
+        description: Check TOML syntax
+      - id: check-xml
+        description: Check XML syntax
+      - id: check-merge-conflict
+        description: Check for merge conflict markers
+      - id: check-case-conflict
+        description: Check for case conflicts in filenames
+      - id: check-added-large-files
+        description: Prevent large files from being committed
+        args: ['--maxkb=1000'] # 1MB limit
+
+      # Security checks
+      - id: detect-private-key
+        description: Detect private keys in files
+      # - id: detect-aws-credentials
+      #   description: Detect AWS credentials
+      #   args: ['--allow-missing-credentials']
+
+      # Git hooks
+      - id: check-merge-conflict
+        description: Check for merge conflict markers
+      - id: mixed-line-ending
+        description: Ensure consistent line endings
+        args: ['--fix=lf'] # Use LF line endings
+
+      # Documentation
+      - id: check-docstring-first
+        description: Check that docstrings are at the top of files
+
+  # Python-specific hooks
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.1
+    hooks:
+      - id: ruff
+        description: Run Ruff linter
+        args: [--fix]
+      - id: ruff-format
+        description: Run Ruff formatter
+
+  # Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
+    hooks:
+      - id: mypy
+        description: Run MyPy type checker
+        additional_dependencies:
+          [types-requests, types-PyYAML, types-setuptools]
+        args: [--config-file=pyproject.toml]
+        files: ^app/
+
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.6
+    hooks:
+      - id: bandit
+        description: Security linting
+        args: [-r, app/, -f, json, -o, bandit-report.json]
+        exclude: ^tests/
+        pass_filenames: false
+
+  # Commit message linting
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.9.1
+    hooks:
+      - id: commitizen
+        description: Check commit message format
+        stages: [commit-msg]
+
+  # Custom hooks for this project
+  - repo: local
+    hooks:
+      - id: coverage-check
+        name: coverage-check
+        entry: bash -c 'if command -v coverage &> /dev/null; then coverage report --fail-under=70; else echo "Coverage not available"; fi'
+        language: system
+        description: Check test coverage
+        pass_filenames: false
+        always_run: false
+        stages: [pre-push]
+
+# Configuration
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [commit]
+fail_fast: false
+minimum_pre_commit_version: '3.0.0'
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

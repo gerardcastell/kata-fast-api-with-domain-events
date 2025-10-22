@@ -157,8 +157,8 @@ async def setup_test_database(test_settings):
         # Create tables once
         async with engine.begin() as conn:
             # Import all models to ensure they're registered
-            from app.contexts.customers.infrastructure.persistence.models.customer import (
-                CustomerModel,  # noqa: F401
+            from app.contexts.customers.infrastructure.persistence.models.customer import (  # noqa: F401
+                CustomerModel,
             )
 
             # Create all tables using SQLModel metadata

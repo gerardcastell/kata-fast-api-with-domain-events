@@ -1,13 +1,14 @@
-import importlib
-from pathlib import Path
-import sys
-import os
 import asyncio
+import importlib
+import os
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
-from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import SQLModel
+
+from alembic import context
 
 # Import settings to get database URL
 from app.config.settings import settings

@@ -6,7 +6,7 @@ from app.shared.infrastructure.db.interface import AsyncDatabaseFactory
 
 
 class SQLiteDatabaseFactory(AsyncDatabaseFactory):
-    def build_async_engine(url: str) -> AsyncEngine:
+    def build_async_engine(self, url: str) -> AsyncEngine:
         engine = create_async_engine(url, echo=False, future=True)
 
         # Useful SQLite PRAGMAs
@@ -21,6 +21,7 @@ class SQLiteDatabaseFactory(AsyncDatabaseFactory):
         return engine
 
     def build_async_session_factory(
+        self,
         engine: AsyncEngine,
     ) -> async_sessionmaker[AsyncSession]:
         return async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)

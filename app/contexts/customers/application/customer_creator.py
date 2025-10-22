@@ -1,5 +1,3 @@
-from typing import Optional
-
 from app.contexts.customers.domain.entities.customer import Customer
 from app.contexts.customers.domain.repositories.customer_repository import (
     CustomerRepository,
@@ -12,18 +10,12 @@ class CustomerCreator:
 
     async def create(
         self,
-        id: Optional[str] = None,
-        name: str = None,
-        email: str = None,
-        activePoliciesCount: Optional[int] = 0,
+        id: str | None = None,
+        name: str | None = None,
+        email: str | None = None,
+        activePoliciesCount: int | None = None,
     ) -> Customer:
         # Only pass id if it's provided, let Customer generate it if None
-        customer_kwargs = {
-            "name": name,
-            "email": email,
-            "activePoliciesCount": activePoliciesCount,
-        }
-        if id is not None:
-            customer_kwargs["id"] = id
-        customer = Customer(**customer_kwargs)
+
+        customer = Customer(id=id, name=name, email=email, activePoliciesCount=activePoliciesCount)
         return await self.customer_repository.save(customer)

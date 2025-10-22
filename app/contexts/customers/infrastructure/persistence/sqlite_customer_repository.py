@@ -1,6 +1,7 @@
-from typing import Iterable
+from collections.abc import Callable, Iterable
 
 from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.contexts.customers.domain.entities.customer import Customer
 from app.contexts.customers.domain.repositories.customer_repository import (
@@ -11,8 +12,8 @@ from app.contexts.customers.infrastructure.persistence.models.customer import (
 )
 
 
-class SQLiteCustomerRepository(CustomerRepository):
-    def __init__(self, session_factory):
+class PostgreSQLCustomerRepository(CustomerRepository):
+    def __init__(self, session_factory: Callable[[], AsyncSession]):
         self.session_factory = session_factory
 
     async def save(self, customer: Customer) -> Customer:

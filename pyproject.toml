@@ -24,10 +24,18 @@ dependencies = [
 dev = [
     "debugpy>=1.8.17",
     "httpx>=0.28.1",
+    "mypy>=1.18.2",
     "pytest>=8.4.2",
     "pytest-asyncio>=0.24.0",
     "pytest-cov>=6.0.0",
     "ruff>=0.13.3",
+    "pre-commit>=3.8.0",
+    "bandit>=1.7.10",
+    "flake8>=7.1.1",
+    "flake8-docstrings>=1.7.0",
+    "flake8-bugbear>=24.2.6",
+    "isort>=5.13.2",
+    "commitizen>=3.27.0",
 ]
 
 [tool.pytest.ini_options]
@@ -51,3 +59,106 @@ markers = [
     "unit: marks tests as unit tests",
 ]
 asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+ignore_missing_imports = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "alembic.*",
+    "alembic.operations.*",
+    "alembic.runtime.*",
+    "alembic.script.*",
+    "alembic.util.*",
+    "sqlalchemy.*",
+    "sqlmodel.*",
+    "asyncpg.*",
+    "aiosqlite.*",
+    "dependency_injector.*",
+    "pydantic_settings.*",
+    "uvicorn.*",
+    "uvloop.*",
+    "httptools.*",
+    "greenlet.*",
+    "orjson.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "app.contexts.customers.infrastructure.persistence.models.customer"
+ignore_errors = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+# Combined excludes from .black, .flake8, and .isort.cfg skip_glob
+exclude = [
+    ".eggs/",
+    ".git/",
+    ".mypy_cache/",
+    ".venv/",
+    ".circleci/",
+    ".vscode/",
+    ".env/",
+    ".coverage/",
+    "build/",
+    "dist/",
+    "docs/",
+    "locale/",
+    "alembic/",
+    "alembic.ini",
+    "__pycache__/",
+    "*.venv"
+]
+
+[tool.ruff.lint]
+# Flake8 ignores based on .flake8
+# E402: module level import not at top of file
+# E226: missing whitespace around arithmetic operator
+# E501: line too long (handled by formatter)
+# B008: Do not perform function call in argument defaults (FastAPI Depends)
+# B904: Within an except clause, raise exceptions with raise ... from err (FastAPI exception handling)
+# T201: print found (common in test files and debugging)
+ignore = ["E402", "E226", "E501", "B008", "B904", "T201", "PLC0415", "PLR2004", "SIM102", "RUF005"]
+extend-select = ["I", "UP", "B", "C4", "PIE", "T20", "SIM", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
+
+[tool.ruff.lint.isort]
+order-by-type = false
+# Based on .isort.cfg and .flake8 application settings
+#known-first-party = ["app", "config"]
+#known-third-party = ["scripts", "tests", "cleverea_*"]
+
+section-order = [
+  "future",
+  "standard-library",
+  "third-party",
+  "fastapi",
+  "first-party",
+  "local-folder"
+]
+
+[tool.ruff.lint.isort.sections]
+"fastapi" = ["fastapi"]
+
+[tool.ruff.format]
+# Based on .black settings and existing ruff.toml
+quote-style = "double"
+indent-style = "space"
+# Corresponds to include_trailing_comma=True in .isort.cfg
+skip-magic-trailing-comma = false
+# skip-string-normalization = false is the default for Ruff formatter

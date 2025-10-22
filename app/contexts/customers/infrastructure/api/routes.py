@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from dependency_injector.wiring import inject, Provide
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -17,20 +15,22 @@ router = APIRouter(prefix="/customers", tags=["customers"])
 async def create_customer(
     name: str,
     email: str,
-    id: Optional[str] = None,
-    activePoliciesCount: Optional[int] = None,
+    id: str | None = None,
+    activePoliciesCount: int | None = None,
     customer_creator: CustomerCreator = Depends(
         Provide[Container.customer_services.customer_creator]
     ),
 ):
     try:
         # Only pass id if it's not None, let the entity generate it if needed
-        return await customer_creator.create(id=id, name=name, email=email, activePoliciesCount=activePoliciesCount )
+        return await customer_creator.create(
+            id=id, name=name, email=email, activePoliciesCount=activePoliciesCount
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/", response_model=List[Customer])
+@router.get("/", response_model=list[Customer])
 @inject
 async def list_customers(
     customer_searcher: CustomerSearcher = Depends(

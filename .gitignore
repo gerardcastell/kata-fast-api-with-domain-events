@@ -16,8 +16,12 @@ wheels/
 *.db
 *.db-*
 
-# Testing
-coverage.xml
-
 # IDEs
 .vscode/settings.json
+
+# Testing
+.coverage
+htmlcov/
+
+# Security reports
+bandit-report.json

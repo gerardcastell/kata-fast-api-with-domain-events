@@ -1,4 +1,4 @@
-from typing import Callable, Iterable
+from collections.abc import Callable, Iterable
 
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession

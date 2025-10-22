@@ -1,16 +1,16 @@
 """auto
 
 Revision ID: 19b0befbcb8c
-Revises: 
+Revises:
 Create Date: 2025-10-16 15:05:28.645937
 
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 import sqlmodel
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '19b0befbcb8c'

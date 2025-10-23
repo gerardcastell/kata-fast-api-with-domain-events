@@ -19,6 +19,13 @@ class Config(BaseSettings):
     psql_db_password: str = Field("1234")
     create_tables_on_startup: bool = Field(default=False)
 
+    AWS_REGION: str = Field(default="us-east-1", env="AWS_REGION")
+    SQS_QUEUE: str = Field(default="test-queue", env="SQS_QUEUE")
+    SQS_QUEUE_URL: str = Field(default="http://localstack:4566/000000000000/test-queue", env="SQS_QUEUE_URL")
+    SQS_BROKER_URL: str = Field(default="sqs://test:test@localstack:4566/", env="SQS_BROKER_URL")
+    AWS_ACCESS_KEY_ID: str = Field(default="test", env="AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY: str = Field(default="test", env="AWS_SECRET_ACCESS_KEY")
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

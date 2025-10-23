@@ -5,18 +5,19 @@ FROM python:3.12-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    PATH="/home/app/.local/bin:$PATH"
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv for faster dependency management
-RUN pip install --no-cache-dir uv
-
 # Set work directory
 WORKDIR /app
+
+# Install uv for faster dependency management
+RUN pip install --no-cache-dir uv
 
 # Copy dependency files
 COPY pyproject.toml uv.lock ./

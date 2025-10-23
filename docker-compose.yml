@@ -120,6 +120,22 @@ services:
       - debug
     restart: unless-stopped
 
+  celery-worker:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - SQS_BROKER_URL=${SQS_BROKER_URL}
+    container_name: celery-worker
+    command: uv run celery -A app.shared.infrastructure.celery.app.app worker --loglevel=debug
+    depends_on:
+      - localstack
+      - postgres
+    profiles:
+      - dev
+    networks:
+      - default-net
+
   postgres:
     image: postgres:16.2-alpine3.19
     environment:
@@ -212,7 +228,7 @@ services:
       - "8080:8080"
     environment:
       - SERVICES=sqs
-      - AWS_DEFAULT_REGION=eu-west-1
+      - AWS_DEFAULT_REGION=${AWS_REGION}
       - DEBUG=1
       - DOCKER_HOST=unix:///var/run/docker.sock
       - HOSTNAME_EXTERNAL=localstack
@@ -221,6 +237,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     profiles:
       - dev
+    networks:
+      - default-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      retries: 20
+
 volumes:
   data:
   postgres-data:

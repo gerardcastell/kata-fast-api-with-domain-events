@@ -64,6 +64,13 @@ dev:
 	@echo "$(BLUE)[INFO]$(NC) Application available at: http://localhost:8001"
 	@echo "$(BLUE)[INFO]$(NC) View logs with: make logs"
 
+worker:
+	@echo "$(BLUE)[INFO]$(NC) Starting worker..."
+	@docker-compose up worker --build -d
+	@echo "$(GREEN)[SUCCESS]$(NC) Worker started!"
+	@echo "$(BLUE)[INFO]$(NC) Worker available at: http://localhost:8002"
+	@echo "$(BLUE)[INFO]$(NC) View logs with: make logs"
+
 debug:
 	@echo "$(BLUE)[INFO]$(NC) Starting debug environment..."
 	@echo "$(YELLOW)[WARNING]$(NC) This will wait for a debugger to attach on port 5678"
@@ -72,6 +79,10 @@ debug:
 logs:
 	@echo "$(BLUE)[INFO]$(NC) Showing logs for development service..."
 	@docker-compose logs -f app-dev
+
+logs-worker:
+	@echo "$(BLUE)[INFO]$(NC) Showing logs for worker service..."
+	@docker-compose logs -f worker
 
 shell:
 	@echo "$(BLUE)[INFO]$(NC) Accessing container shell..."
@@ -89,6 +100,9 @@ stop:
 	@echo "$(BLUE)[INFO]$(NC) Stopping all services..."
 	@docker-compose down app-dev
 	@docker-compose down app-debug
+	@docker-compose down worker
+	@docker-compose down rabbitmq
+	@docker-compose down postgres
 	@echo "$(GREEN)[SUCCESS]$(NC) All services stopped!"
 
 clean:

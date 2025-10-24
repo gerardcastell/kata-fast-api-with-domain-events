@@ -5,8 +5,9 @@ from app.contexts.customers.domain.repositories.customer_repository import (
 
 
 class CustomerCreator:
-    def __init__(self, customer_repository: CustomerRepository):
+    def __init__(self, customer_repository: CustomerRepository, task_publisher):
         self.customer_repository = customer_repository
+        self.task_publisher = task_publisher
 
     async def create(
         self,
@@ -18,4 +19,11 @@ class CustomerCreator:
         # Only pass id if it's provided, let Customer generate it if None
 
         customer = Customer(id=id, name=name, email=email, activePoliciesCount=activePoliciesCount)
+        await self.task_publisher(
+            {
+                "task": "send_email",
+                "customer_id": customer.id,
+            }
+        )
+
         return await self.customer_repository.save(customer)

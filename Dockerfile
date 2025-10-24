@@ -10,6 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv for faster dependency management
@@ -26,6 +27,7 @@ RUN uv sync --frozen --no-dev
 
 # Copy application code
 COPY ./app ./app
+COPY ./worker ./worker
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app

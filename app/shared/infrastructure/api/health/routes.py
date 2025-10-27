@@ -4,6 +4,7 @@ from sqlalchemy import text
 from fastapi import APIRouter, Depends
 
 from app.shared.containers.main import Container
+from worker.tasks.unstable_task import unstable_task
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -21,3 +22,9 @@ async def ready(
     async with session_factory() as session:
         await session.exec(text("SELECT 1"))
     return {"status": "ok"}
+
+
+@router.get("/test-celery")
+async def run_task(x: int):
+    unstable_task.delay(x)
+    return {"success": "sisi"}

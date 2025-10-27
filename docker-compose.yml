@@ -56,14 +56,13 @@ services:
       # Mount source code for hot reload
       - ./app:/app/app
       - ./data:/app/data
+      - ./worker:/app/worker
     networks:
       - default-net
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
-        condition: service_healthy
-      worker:
         condition: service_healthy
     command: [ 'uv', 'run', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload' ]
     restart: unless-stopped
@@ -204,6 +203,11 @@ services:
     environment:
       - PYTHONPATH=/app
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_VHOST=
     volumes:
       - ./worker:/app/worker
     networks:
@@ -211,14 +215,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-    command: [ "uv", "run", "python", "-m", "worker.worker" ]
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD-SHELL", "pgrep -f 'worker.worker' || exit 1" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+    command: uv run celery -A worker.celery.app worker --loglevel=debug
 
 volumes:
   data:

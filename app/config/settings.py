@@ -19,6 +19,13 @@ class Config(BaseSettings):
     psql_db_password: str = Field("1234")
     create_tables_on_startup: bool = Field(default=False)
 
+    RABBITMQ_USER: str = Field("guest")
+    RABBITMQ_PASSWORD: str = Field("guest")
+    RABBITMQ_HOST: str = Field("rabbitmq")
+    RABBITMQ_PORT: str = Field("5672")
+    RABBITMQ_VHOST: str = Field("")
+    RABBITMQ_QUEUE: str = Field("main_queue")
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

@@ -1,6 +1,5 @@
 # worker/handler.py
 import asyncio
-import random
 
 
 async def send_email(message: dict):
@@ -11,12 +10,12 @@ async def send_email(message: dict):
     task = message.get("task")
     customer_id = message.get("customer_id")
     payload = message.get("payload", {})
-
+    fail = message.get("fail", False)
     # Simula trabajo async
     await asyncio.sleep(15)
 
     # Simula fallo aleatorio para PoC
-    if random.random() < 0.25:
+    if fail:
         error_message = f"Simulated failure on task send_email for customer {customer_id}"
         raise RuntimeError(error_message)
 

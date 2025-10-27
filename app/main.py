@@ -6,6 +6,7 @@ from sqlmodel import SQLModel
 
 from fastapi import FastAPI
 
+from app.broker import publish_task
 from app.config.settings import settings
 from app.contexts.customers.infrastructure.api import routes as customer_module
 from app.shared.containers.main import Container
@@ -57,6 +58,28 @@ def create_app(custom_settings=None):
 
 
 app = create_app()
+
+
+@app.get("/test-worker/send-email/{fail}")
+async def test_worker_send_email(fail: bool = False):
+    await publish_task(
+        {"task": "send_email", "customer_id": 123, "fail": fail}, routing_key="notifications"
+    )
+
+
+@app.get("/test-worker/send-sms/{fail}")
+async def test_worker_send_sms(fail: bool = False):
+    await publish_task(
+        {"task": "send_sms", "customer_id": 123, "fail": fail}, routing_key="notifications"
+    )
+
+
+@app.get("/test-worker/generate-report/{fail}")
+async def test_worker_generate_report(fail: bool = False):
+    await publish_task(
+        {"task": "generate_report", "customer_id": 123, "fail": fail}, routing_key="reports"
+    )
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)  # nosec B104

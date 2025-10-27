@@ -187,11 +187,43 @@ Configuration is managed through:
 - **YAML files**: Default configuration values
 - **Dependency Injection**: Runtime configuration binding
 
+## 🔄 Background Worker & Queue System
+
+This project includes a RabbitMQ-based background worker system for asynchronous task processing:
+
+### Running the Worker
+
+```bash
+# Start RabbitMQ (via Docker)
+docker-compose up -d rabbitmq
+
+# Run the worker
+python -m worker.worker
+```
+
+### Multi-Queue Support
+
+The worker supports multiple queues with independent configurations. See the [Multi-Queue Setup Guide](./docs/MULTI_QUEUE_SETUP.md) for detailed information on:
+
+- Configuring multiple queues
+- Adding new task handlers
+- Publishing to different queues
+- Queue patterns (by priority, task type, or domain)
+- Concurrency control per queue
+
+### Testing the Queue System
+
+```bash
+# Test publishing messages to queues
+python scripts/test_multi_queue.py
+```
+
 ## 📚 Documentation
 
 - **API Documentation**: Available at `/docs` (Swagger UI)
 - **Docker Guide**: See `docs/DOCKER.md` for detailed Docker usage
 - **Testing Guide**: See `docs/TESTING.md` for detailed testing usage
+- **Multi-Queue Guide**: See `docs/MULTI_QUEUE_SETUP.md` for RabbitMQ queue configuration
 
 ## 📄 License
 

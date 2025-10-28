@@ -15,6 +15,14 @@ services:
       - DEBUG=false
       - ENVIRONMENT=production
       - LOG_LEVEL=INFO
+      - AWS_ACCESS_KEY_ID=${aws_access_key_id:-test}
+      - AWS_SECRET_ACCESS_KEY=${aws_secret_access_key:-test}
+      - AWS_REGION=${aws_region:-us-east-1}
+      - AWS_ENDPOINT_URL=${aws_endpoint_url:-http://localstack:4566}
+      - SQS_QUEUE_URL=${sqs_queue_url:-http://localstack:4566/000000000000/task-queue}
+      - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
+      - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
+      - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
     volumes:
       # Mount database file to persist data
       - ./data:/app/data
@@ -22,6 +30,7 @@ services:
       - default-net
     depends_on:
       - postgres
+      - localstack
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health/live']
@@ -47,6 +56,14 @@ services:
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
       - PYTHONASYNCIODEBUG=1
+      - AWS_ACCESS_KEY_ID=${aws_access_key_id:-test}
+      - AWS_SECRET_ACCESS_KEY=${aws_secret_access_key:-test}
+      - AWS_REGION=${aws_region:-us-east-1}
+      - AWS_ENDPOINT_URL=${aws_endpoint_url:-http://localstack:4566}
+      - SQS_QUEUE_URL=${sqs_queue_url:-http://localstack:4566/000000000000/task-queue}
+      - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
+      - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
+      - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
     volumes:
       # Mount source code for hot reload
       - ./app:/app/app
@@ -55,6 +72,7 @@ services:
       - default-net
     depends_on:
       - postgres
+      - localstack
     command:
       [
         'uv',
@@ -86,6 +104,14 @@ services:
       - ENVIRONMENT=development
       - LOG_LEVEL=DEBUG
       - PYTHONASYNCIODEBUG=1
+      - AWS_ACCESS_KEY_ID=${aws_access_key_id:-test}
+      - AWS_SECRET_ACCESS_KEY=${aws_secret_access_key:-test}
+      - AWS_REGION=${aws_region:-us-east-1}
+      - AWS_ENDPOINT_URL=${aws_endpoint_url:-http://localstack:4566}
+      - SQS_QUEUE_URL=${sqs_queue_url:-http://localstack:4566/000000000000/task-queue}
+      - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
+      - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
+      - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
     volumes:
       # Mount source code for hot reload
       - ./app:/app/app
@@ -94,6 +120,7 @@ services:
       - default-net
     depends_on:
       - postgres
+      - localstack
     command:
       [
         'uv',
@@ -148,6 +175,7 @@ services:
       - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
+      - localstack
     entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
     command: ['revision', '--autogenerate', '-m', 'auto']
     networks:
@@ -166,6 +194,7 @@ services:
       - ./alembic/versions:/app/alembic/versions
     depends_on:
       - postgres
+      - localstack
     entrypoint: ['uv', 'run', 'python', '-m', 'alembic']
     command: ['upgrade', 'head']
     networks:
@@ -195,6 +224,78 @@ services:
     command: ['format', 'app']
     networks:
       - default-net
+
+  # SQS Worker service
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONPATH=/app
+      - SQLITE_URL=${sqlite_url}
+      - POSTGRES_URL=${postgres_url}
+      - CREATE_TABLES_ON_STARTUP=${create_tables_on_startup}
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - AWS_ACCESS_KEY_ID=${aws_access_key_id:-test}
+      - AWS_SECRET_ACCESS_KEY=${aws_secret_access_key:-test}
+      - AWS_REGION=${aws_region:-us-east-1}
+      - AWS_ENDPOINT_URL=${aws_endpoint_url:-http://localstack:4566}
+      - SQS_QUEUE_URL=${sqs_queue_url:-http://localstack:4566/000000000000/task-queue}
+      - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
+      - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
+      - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
+    volumes:
+      - ./app:/app/app
+      - ./scripts:/app/scripts
+      - ./worker.log:/app/worker.log
+    networks:
+      - default-net
+    depends_on:
+      - postgres
+      - localstack
+    command: ['uv', 'run', 'python', 'scripts/worker.py']
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python',
+          '-c',
+          'import os; exit(0 if os.path.exists("/app/worker.log") else 1)',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # LocalStack for local AWS services testing
+  localstack:
+    image: localstack/localstack:3.0
+    container_name: localstack-sqs
+    ports:
+      - '4566:4566' # LocalStack Gateway
+      - '4510-4559:4510-4559' # External services port range
+    environment:
+      - SERVICES=sqs
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ENDPOINT_URL=http://localstack:4566
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - './scripts/localstack-init.sh:/etc/localstack/init/ready.d/init-sqs.sh'
+    networks:
+      - default-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/_localstack/health']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   data:

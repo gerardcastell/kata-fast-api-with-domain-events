@@ -10,6 +10,7 @@ from app.config.settings import settings
 from app.contexts.customers.infrastructure.api import routes as customer_module
 from app.shared.containers.main import Container
 from app.shared.infrastructure.api.health import routes as health_module
+from app.shared.infrastructure.api.tasks import routes as tasks_module
 
 if TYPE_CHECKING:
     from app.shared.containers.main import Container
@@ -47,7 +48,7 @@ def create_app(custom_settings=None):
     app.container = container
 
     # Wire and include the routers
-    modules = [customer_module, health_module]
+    modules = [customer_module, health_module, tasks_module]
     container.wire(modules=modules)
 
     for module in modules:

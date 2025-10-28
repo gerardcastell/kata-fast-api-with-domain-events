@@ -1,4 +1,7 @@
 
+# FastAPI Application Dockerfile
+# This image is used for the web server and worker services
+
 # Use Python 3.12 slim image for better performance and security
 FROM python:3.12-slim
 

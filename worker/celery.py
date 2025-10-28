@@ -63,10 +63,6 @@ app.conf.task_acks_late = True
 app.conf.task_reject_on_worker_lost = True
 app.conf.task_acks_on_failure_or_timeout = False
 
-# Task routing (optional, ensures specific tasks go to main queue)
-app.conf.task_routes = {
-    "tasks.unstable_task": {"queue": "tasks.main"},
-}
 
 # Import tasks so they get registered
 import worker.tasks.unstable_task

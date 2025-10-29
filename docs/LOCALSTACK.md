@@ -1,10 +1,19 @@
-# LocalStack SQS Testing Guide
+# LocalStack Testing Guide
 
-This guide explains how to use LocalStack for local SQS testing with your FastAPI application.
+This guide explains how to use LocalStack for local AWS services testing with your FastAPI application.
 
 ## Overview
 
-LocalStack provides a fully functional local AWS cloud stack that includes SQS services. This allows you to test your SQS implementation locally without needing actual AWS credentials or resources.
+LocalStack provides a fully functional local AWS cloud stack that includes SQS, Lambda, IAM, and other services. This allows you to test your AWS implementation locally without needing actual AWS credentials or resources.
+
+## Testing Modes
+
+This project supports two testing modes:
+
+1. **Worker Mode** - Continuous polling process for development (see below)
+2. **Lambda Mode** - Actual AWS Lambda function testing (see [LAMBDA.md](LAMBDA.md))
+
+Choose Worker Mode for rapid development and Lambda Mode to test the actual production Lambda handler.
 
 ## Setup
 
@@ -290,8 +299,24 @@ When deploying to production:
 4. Set up CloudWatch monitoring
 5. Configure dead letter queues for error handling
 
+## Lambda Testing
+
+For testing the actual AWS Lambda function locally (instead of the worker poller), see:
+
+**📘 [Lambda Testing Guide](LAMBDA.md)**
+
+The Lambda testing guide covers:
+
+- Deploying Lambda to LocalStack
+- Setting up SQS triggers
+- Testing Lambda invocations
+- Monitoring and debugging Lambda functions
+- Differences from production AWS
+- Troubleshooting Lambda issues
+
 ## Additional Resources
 
 - [LocalStack Documentation](https://docs.localstack.cloud/)
 - [AWS SQS Documentation](https://docs.aws.amazon.com/sqs/)
+- [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
 - [boto3 SQS Documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html)

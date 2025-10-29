@@ -1,6 +1,6 @@
 # Unified Command Toolkit for events-with-fast-api project
 
-.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file typecheck precommit-setup precommit-run precommit-update precommit-clean localstack localstack-logs localstack-stop sqs-test worker worker-logs worker-stop worker-shell worker-example
+.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file typecheck precommit-setup precommit-run precommit-update precommit-clean localstack localstack-logs localstack-stop sqs-test lambda-deploy lambda-test lambda-logs lambda-container-logs lambda-invoke lambda-cleanup worker worker-logs worker-stop worker-shell worker-example
 
 # Colors for output
 RED := \033[0;31m
@@ -29,6 +29,16 @@ help:
 	@echo "  localstack-logs  - Show LocalStack logs"
 	@echo "  localstack-stop  - Stop LocalStack service"
 	@echo "  sqs-test         - Test SQS functionality"
+	@echo ""
+	@echo "$(YELLOW)Lambda Testing Commands:$(NC)"
+	@echo "  lambda-deploy         - Deploy Lambda function to LocalStack (requires Pro)"
+	@echo "  lambda-test           - Test Lambda with SQS trigger"
+	@echo "  lambda-logs           - View Lambda CloudWatch logs"
+	@echo "  lambda-container-logs - View Lambda container logs (more reliable)"
+	@echo "  lambda-invoke         - Invoke Lambda directly with test event"
+	@echo "  lambda-cleanup        - Remove Lambda function from LocalStack"
+	@echo ""
+	@echo "$(YELLOW)  Note:$(NC) Container images require LocalStack Pro (Community uses worker mode)"
 	@echo ""
 	@echo "$(YELLOW)Worker Commands:$(NC)"
 	@echo "  worker           - Start SQS worker service"
@@ -145,6 +155,57 @@ sqs-test:
 	@echo "$(BLUE)[INFO]$(NC) Testing SQS functionality..."
 	@echo "$(BLUE)[INFO]$(NC) Running Python integration test..."
 	@uv run python scripts/test_sqs_localstack.py
+
+# Lambda Testing Commands
+lambda-deploy:
+	@echo "$(BLUE)[INFO]$(NC) Deploying Lambda function to LocalStack..."
+	@./scripts/deploy-lambda-localstack.sh
+
+lambda-test:
+	@echo "$(BLUE)[INFO]$(NC) Testing Lambda function with LocalStack..."
+	@./scripts/test-lambda-localstack.sh
+
+lambda-logs:
+	@echo "$(BLUE)[INFO]$(NC) Fetching Lambda logs from LocalStack..."
+	@echo "$(BLUE)[INFO]$(NC) Checking if Lambda function exists..."
+	@if awslocal lambda get-function --function-name events-sqs-processor >/dev/null 2>&1; then \
+		echo "$(GREEN)[SUCCESS]$(NC) Lambda function found"; \
+		echo "$(BLUE)[INFO]$(NC) Checking for log groups..."; \
+		if awslocal logs describe-log-groups --log-group-name-prefix "/aws/lambda/events-sqs-processor" >/dev/null 2>&1; then \
+			echo "$(GREEN)[SUCCESS]$(NC) Log group found, fetching logs..."; \
+			awslocal logs tail /aws/lambda/events-sqs-processor --since 10m --follow || echo "$(YELLOW)[WARNING]$(NC) No logs available or log streaming not supported"; \
+		else \
+			echo "$(YELLOW)[WARNING]$(NC) No log group found. Lambda hasn't been invoked yet."; \
+			echo "$(BLUE)[INFO]$(NC) Try: make lambda-invoke or send messages to SQS"; \
+		fi; \
+	else \
+		echo "$(RED)[ERROR]$(NC) Lambda function 'events-sqs-processor' not found"; \
+		echo "$(BLUE)[INFO]$(NC) Deploy Lambda first: make lambda-deploy"; \
+	fi
+
+lambda-invoke:
+	@echo "$(BLUE)[INFO]$(NC) Invoking Lambda function directly..."
+	@echo '{"Records":[{"body":"{\"task_id\":\"test-123\",\"task_type\":\"data_processing\",\"priority\":\"normal\",\"payload\":{\"data\":[1,2,3]},\"retry_count\":0,\"max_retries\":3,\"delay_seconds\":0,\"timestamp\":\"2025-01-01T00:00:00Z\"}"}]}' | \
+	awslocal lambda invoke --function-name events-sqs-processor --cli-binary-format raw-in-base64-out /tmp/lambda-out.json && \
+	echo "$(GREEN)[SUCCESS]$(NC) Response:" && cat /tmp/lambda-out.json && echo ""
+
+lambda-container-logs:
+	@echo "$(BLUE)[INFO]$(NC) Finding Lambda container..."
+	@LAMBDA_CONTAINER=$$(docker ps --filter "name=lambda" --format "{{.Names}}" | head -1); \
+	if [ -n "$$LAMBDA_CONTAINER" ]; then \
+		echo "$(GREEN)[SUCCESS]$(NC) Found Lambda container: $$LAMBDA_CONTAINER"; \
+		echo "$(BLUE)[INFO]$(NC) Streaming logs (Ctrl+C to stop)..."; \
+		docker logs -f $$LAMBDA_CONTAINER; \
+	else \
+		echo "$(YELLOW)[WARNING]$(NC) No Lambda container found"; \
+		echo "$(BLUE)[INFO]$(NC) Lambda may not be running or hasn't been invoked yet"; \
+		echo "$(BLUE)[INFO]$(NC) Try: make lambda-invoke or send messages to SQS"; \
+	fi
+
+lambda-cleanup:
+	@echo "$(BLUE)[INFO]$(NC) Removing Lambda function from LocalStack..."
+	@awslocal lambda delete-function --function-name events-sqs-processor || echo "$(YELLOW)[WARNING]$(NC) Function may not exist"
+	@echo "$(GREEN)[SUCCESS]$(NC) Lambda function removed!"
 
 # Worker Commands
 worker:

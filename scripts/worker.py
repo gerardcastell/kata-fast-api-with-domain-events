@@ -13,11 +13,13 @@ from pathlib import Path
 # Add the project root to Python path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
-
 from app.config.settings import settings
+from app.shared.containers.main import Container
+from app.shared.infrastructure.sqs import tasks as tasks_module
 from app.shared.infrastructure.sqs.client import SQSClient
 from app.shared.infrastructure.sqs.models import WorkerConfig
 from app.shared.infrastructure.sqs.tasks import (
+    create_customer_creation_task,
     DataProcessingTask,
     EmailNotificationTask,
     ReportGenerationTask,
@@ -63,15 +65,26 @@ async def main():
     # Create worker
     worker = SQSWorker(sqs_client, worker_config)
 
+    # Create dependency injection container
+    container = Container()
+    container.config.from_pydantic(settings)
+    container.wire(modules=[tasks_module])
+
     # Register task processors
     worker.register_processor(DataProcessingTask())
     worker.register_processor(EmailNotificationTask())
     worker.register_processor(ReportGenerationTask())
 
+    # Register customer creation task with dependency injection
+    customer_creation_task = create_customer_creation_task()
+
+    worker.register_processor(customer_creation_task)
+
     logger.info("Worker configured with processors:")
     logger.info("- data_processing")
     logger.info("- email_notification")
     logger.info("- report_generation")
+    logger.info("- customer_creation")
 
     try:
         # Start the worker

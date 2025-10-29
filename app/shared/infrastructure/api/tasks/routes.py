@@ -177,3 +177,49 @@ async def dispatch_report_generation_task(
         },
     )
     return await dispatch_task(request, task_dispatcher)
+
+
+@router.post("/customer-creation", response_model=TaskResponse)
+@inject
+async def dispatch_customer_creation_task(  # noqa: PLR0913
+    name: str,
+    email: str,
+    customer_id: str | None = None,
+    active_policies_count: int | None = None,
+    priority: TaskPriority = TaskPriority.NORMAL,
+    delay_seconds: int = 0,
+    max_retries: int = 3,
+    task_dispatcher: TaskDispatcher = Depends(Provide[Container.task_dispatcher]),
+):
+    """Dispatch a customer creation task."""
+    try:
+        task_id = await task_dispatcher.dispatch_task(
+            task_type="customer_creation",
+            payload={
+                "customer_data": {
+                    "name": name,
+                    "email": email,
+                    "id": customer_id,
+                    "activePoliciesCount": active_policies_count,
+                }
+            },
+            priority=priority,
+            delay_seconds=delay_seconds,
+            max_retries=max_retries,
+        )
+
+        if task_id:
+            return TaskResponse(
+                task_id=task_id,
+                success=True,
+                message="Customer creation task dispatched successfully",
+            )
+        else:
+            return TaskResponse(
+                task_id=None,
+                success=False,
+                message="Failed to dispatch customer creation task",
+            )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

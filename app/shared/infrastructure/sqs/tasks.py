@@ -3,6 +3,10 @@ import logging
 import random
 from datetime import datetime, timezone
 
+from dependency_injector.wiring import inject, Provide
+
+from app.contexts.customers.application.customer_creator import CustomerCreator
+from app.shared.containers.main import Container
 from app.shared.infrastructure.sqs.models import TaskMessage, TaskResult, TaskStatus
 from app.shared.infrastructure.sqs.worker import TaskProcessor
 
@@ -176,3 +180,65 @@ class ReportGenerationTask(TaskProcessor):
                 error_message=str(e),
                 completed_at=datetime.now(timezone.utc),
             )
+
+
+class CustomerCreationTask(TaskProcessor):
+    """Task for creating customers using the customer_creator usecase."""
+
+    def __init__(self, customer_creator: CustomerCreator):
+        super().__init__("customer_creation")
+        self.customer_creator = customer_creator
+
+    async def process(self, message: TaskMessage) -> TaskResult:
+        """Process customer creation task."""
+        try:
+            # Extract task data
+            customer_data = message.payload.get("customer_data", {})
+            name = customer_data.get("name")
+            email = customer_data.get("email")
+            customer_id = customer_data.get("id")
+            active_policies_count = customer_data.get("activePoliciesCount")
+
+            if not name or not email:
+                raise ValueError("Customer name and email are required")  # noqa: TRY003, TRY301
+
+            logger.info(f"Creating customer: {name} ({email})")
+
+            # Use the customer_creator usecase to create the customer
+            customer = await self.customer_creator.create(
+                id=customer_id,
+                name=name,
+                email=email,
+                activePoliciesCount=active_policies_count,
+            )
+
+            return TaskResult(
+                task_id=message.task_id,
+                status=TaskStatus.COMPLETED,
+                result={
+                    "customer_id": customer.id,
+                    "name": customer.name,
+                    "email": customer.email,
+                    "active_policies_count": customer.activePoliciesCount,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                },
+                completed_at=datetime.now(timezone.utc),
+            )
+
+        except Exception as e:
+            logger.exception(f"Error creating customer {message.task_id}")
+            return TaskResult(
+                task_id=message.task_id,
+                status=TaskStatus.FAILED,
+                error_message=str(e),
+                completed_at=datetime.now(timezone.utc),
+            )
+
+
+@inject
+def create_customer_creation_task(
+    customer_services=Provide[Container.customer_services],
+) -> CustomerCreationTask:
+    """Factory function to create CustomerCreationTask with dependency injection."""
+    customer_creator = customer_services.customer_creator()
+    return CustomerCreationTask(customer_creator)

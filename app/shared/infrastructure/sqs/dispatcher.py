@@ -19,7 +19,6 @@ class TaskDispatcher:
         payload: dict[str, Any],
         priority: TaskPriority = TaskPriority.NORMAL,
         delay_seconds: int = 0,
-        max_retries: int = 3,
     ) -> str | None:
         """
         Dispatch a task to SQS queue.
@@ -29,7 +28,6 @@ class TaskDispatcher:
             payload: Task data
             priority: Task priority
             delay_seconds: Delay before processing
-            max_retries: Maximum number of retries
 
         Returns:
             Task ID if successful, None otherwise
@@ -40,7 +38,6 @@ class TaskDispatcher:
                 payload=payload,
                 priority=priority,
                 delay_seconds=delay_seconds,
-                max_retries=max_retries,
             )
 
             success = await self.sqs_client.send_message(message)
@@ -61,7 +58,6 @@ class TaskDispatcher:
         tasks: list[tuple[str, dict[str, Any]]],
         priority: TaskPriority = TaskPriority.NORMAL,
         delay_seconds: int = 0,
-        max_retries: int = 3,
     ) -> list[str]:
         """
         Dispatch multiple tasks to SQS queue.
@@ -70,7 +66,6 @@ class TaskDispatcher:
             tasks: List of (task_type, payload) tuples
             priority: Task priority
             delay_seconds: Delay before processing
-            max_retries: Maximum number of retries
 
         Returns:
             List of task IDs that were successfully dispatched
@@ -83,7 +78,6 @@ class TaskDispatcher:
                 payload=payload,
                 priority=priority,
                 delay_seconds=delay_seconds,
-                max_retries=max_retries,
             )
 
             if task_id:

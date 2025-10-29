@@ -6,7 +6,7 @@ This implementation provides a complete SQS-based worker system for processing a
 
 - **Async SQS Client**: Non-blocking SQS operations using boto3
 - **Task Processing**: Configurable worker with concurrent task processing
-- **Retry Logic**: Automatic retry with exponential backoff
+- **SQS Retry Logic**: Automatic retry handling via SQS maxReceiveCount and Dead Letter Queue
 - **Graceful Shutdown**: Proper cleanup and task completion
 - **Health Monitoring**: Queue monitoring and health checks
 - **Dependency Injection**: Integrated with the existing DI container
@@ -42,7 +42,7 @@ This implementation provides a complete SQS-based worker system for processing a
 
 - Main worker implementation
 - Concurrent task processing
-- Retry logic with exponential backoff
+- SQS retry handling via visibility timeout
 - Graceful shutdown handling
 - Health monitoring
 
@@ -55,7 +55,7 @@ This implementation provides a complete SQS-based worker system for processing a
 ### 5. Example Tasks (`tasks.py`)
 
 - `DataProcessingTask`: Long-running data processing
-- `EmailNotificationTask`: Email sending with retry logic
+- `EmailNotificationTask`: Email sending with SQS retry handling
 - `ReportGenerationTask`: Report generation simulation
 
 ## Configuration
@@ -97,7 +97,6 @@ task_id = await dispatcher.dispatch_task(
     task_type="data_processing",
     payload={"data": [1, 2, 3, 4, 5], "processing_type": "aggregation"},
     priority=TaskPriority.NORMAL,
-    max_retries=3,
 )
 
 # Dispatch batch tasks
@@ -174,10 +173,10 @@ The worker provides built-in monitoring:
 
 ## Error Handling
 
-- **Retry Logic**: Automatic retry with exponential backoff
-- **Dead Letter Queue**: Failed tasks after max retries
+- **SQS Retry Logic**: Automatic retry handling via SQS visibility timeout and maxReceiveCount
+- **Dead Letter Queue**: Failed tasks after maxReceiveCount are automatically moved to DLQ
 - **Graceful Degradation**: Continues processing despite individual task failures
-- **Comprehensive Logging**: Detailed error information for debugging
+- **Comprehensive Logging**: Detailed error information including SQS receive count for debugging
 
 ## Performance Considerations
 

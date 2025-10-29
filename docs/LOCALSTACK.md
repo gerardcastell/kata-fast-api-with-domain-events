@@ -170,7 +170,7 @@ The worker service includes several monitoring features:
 - **Logging**: Comprehensive logging to both console and worker.log file
 - **Graceful Shutdown**: Handles SIGTERM and SIGINT signals properly
 - **Task Tracking**: Monitors active tasks and processing times
-- **Retry Logic**: Automatic retry with exponential backoff for failed tasks
+- **Retry Logic**: Automatic retry handling via SQS maxReceiveCount and Dead Letter Queue
 
 Monitor worker status:
 

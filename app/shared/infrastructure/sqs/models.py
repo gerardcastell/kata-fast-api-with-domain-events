@@ -13,7 +13,6 @@ class TaskStatus(str, Enum):
     PROCESSING = "processing"
     COMPLETED = "completed"
     FAILED = "failed"
-    RETRYING = "retrying"
 
 
 class TaskPriority(str, Enum):
@@ -33,8 +32,6 @@ class TaskMessage(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict, description="Task data")
     priority: TaskPriority = Field(default=TaskPriority.NORMAL)
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    retry_count: int = Field(default=0)
-    max_retries: int = Field(default=3)
     delay_seconds: int = Field(default=0, description="Delay before processing")
 
     class Config:

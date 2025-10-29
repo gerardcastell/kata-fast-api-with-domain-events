@@ -23,6 +23,7 @@ services:
       - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
       - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
       - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
+      - SQS_MAX_RECEIVE_COUNT=${sqs_max_receive_count:-1}
     volumes:
       # Mount database file to persist data
       - ./data:/app/data
@@ -64,6 +65,8 @@ services:
       - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
       - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
       - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
+      - SQS_MAX_RECEIVE_COUNT=${sqs_max_receive_count:-1}
+
     volumes:
       # Mount source code for hot reload
       - ./app:/app/app
@@ -112,6 +115,8 @@ services:
       - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
       - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
       - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
+      - SQS_MAX_RECEIVE_COUNT=${sqs_max_receive_count:-1}
+
     volumes:
       # Mount source code for hot reload
       - ./app:/app/app
@@ -245,7 +250,8 @@ services:
       - SQS_QUEUE_URL=${sqs_queue_url:-http://localstack:4566/000000000000/task-queue}
       - SQS_MAX_MESSAGES=${sqs_max_messages:-10}
       - SQS_WAIT_TIME_SECONDS=${sqs_wait_time_seconds:-20}
-      - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-300}
+      - SQS_VISIBILITY_TIMEOUT=${sqs_visibility_timeout:-10}
+      - SQS_MAX_RECEIVE_COUNT=${sqs_max_receive_count:-1}
     volumes:
       - ./app:/app/app
       - ./scripts:/app/scripts

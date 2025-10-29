@@ -24,12 +24,12 @@ echo "LocalStack is ready!"
 echo "Creating task queue..."
 QUEUE_URL=$(awslocal sqs create-queue \
     --queue-name task-queue \
-    --attributes '{
-        "VisibilityTimeout": "300",
-        "MessageRetentionPeriod": "1209600",
-        "ReceiveMessageWaitTimeSeconds": "20",
-        "DelaySeconds": "0"
-    }' \
+    --attributes "{
+        \"VisibilityTimeout\": \"${SQS_VISIBILITY_TIMEOUT:-30}\",
+        \"MessageRetentionPeriod\": \"1209600\",
+        \"ReceiveMessageWaitTimeSeconds\": \"${SQS_WAIT_TIME_SECONDS:-20}\",
+        \"DelaySeconds\": \"0\"
+    }" \
     --query 'QueueUrl' \
     --output text)
 
@@ -39,12 +39,12 @@ echo "Task queue created: $QUEUE_URL"
 echo "Creating dead letter queue..."
 DLQ_URL=$(awslocal sqs create-queue \
     --queue-name task-queue-dlq \
-    --attributes '{
-        "VisibilityTimeout": "300",
-        "MessageRetentionPeriod": "1209600",
-        "ReceiveMessageWaitTimeSeconds": "0",
-        "DelaySeconds": "0"
-    }' \
+    --attributes "{
+        \"VisibilityTimeout\": \"${SQS_VISIBILITY_TIMEOUT:-30}\",
+        \"MessageRetentionPeriod\": \"1209600\",
+        \"ReceiveMessageWaitTimeSeconds\": \"0\",
+        \"DelaySeconds\": \"0\"
+    }" \
     --query 'QueueUrl' \
     --output text)
 
@@ -64,7 +64,7 @@ echo "Configuring dead letter queue..."
 awslocal sqs set-queue-attributes \
     --queue-url "$QUEUE_URL" \
     --attributes "{
-        \"RedrivePolicy\": \"{\\\"deadLetterTargetArn\\\":\\\"$DLQ_ARN\\\",\\\"maxReceiveCount\\\":3}\"
+        \"RedrivePolicy\": \"{\\\"deadLetterTargetArn\\\":\\\"$DLQ_ARN\\\",\\\"maxReceiveCount\\\":${SQS_MAX_RECEIVE_COUNT:-3}}\"
     }"
 
 echo "SQS queues initialized successfully!"

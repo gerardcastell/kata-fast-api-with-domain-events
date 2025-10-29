@@ -61,6 +61,10 @@ class SQSClient(SQSClientInterface):
             # Store receipt handle for later deletion
             task_message._receipt_handle = sqs_message["ReceiptHandle"]
 
+            # Store ApproximateReceiveCount for monitoring (SQS retry count)
+            receive_count = sqs_message.get("Attributes", {}).get("ApproximateReceiveCount", "0")
+            task_message._approximate_receive_count = int(receive_count)
+
         except (json.JSONDecodeError, ValueError):
             logger.exception("Failed to parse message:")
             return None
@@ -116,6 +120,7 @@ class SQSClient(SQSClientInterface):
                 "WaitTimeSeconds": settings.sqs_wait_time_seconds,
                 "VisibilityTimeout": settings.sqs_visibility_timeout,
                 "MessageAttributeNames": ["All"],
+                "AttributeNames": ["All"],  # Include ApproximateReceiveCount
             }
 
             loop = asyncio.get_event_loop()

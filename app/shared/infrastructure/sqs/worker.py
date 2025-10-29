@@ -186,25 +186,22 @@ class SQSWorker:
     async def _handle_task_failure(self, message: TaskMessage, error_message: str):
         """Handle task failure."""
         try:
-            # Check if we should retry
-            if message.retry_count < message.max_retries:
-                # Increment retry count and resend message
-                message.retry_count += 1
-                message.delay_seconds = min(
-                    60 * (2**message.retry_count), 900
-                )  # Exponential backoff
+            # Make the message visible again immediately so SQS can retry it or move it to DLQ
+            # Setting visibility timeout to 0 makes the message immediately visible again
+            # After maxReceiveCount (configured in queue RedrivePolicy), SQS will automatically
+            # move the message to the Dead Letter Queue
+            receive_count = getattr(message, "_approximate_receive_count", 0)
 
-                await self.sqs_client.send_message(message)
-                logger.info(
-                    f"Task {message.task_id} failed, retrying ({message.retry_count}/{message.max_retries})"
+            if hasattr(message, "_receipt_handle"):
+                await self.sqs_client.change_message_visibility(
+                    message._receipt_handle, visibility_timeout=0
                 )
-            else:
-                # Max retries exceeded, delete message
-                if hasattr(message, "_receipt_handle"):
-                    await self.sqs_client.delete_message(message._receipt_handle)
-                logger.error(
-                    f"Task {message.task_id} failed permanently after {message.max_retries} retries. Error message: {error_message}"
-                )
+
+            logger.error(
+                f"Task {message.task_id} failed (receive count: {receive_count}). "
+                f"Error message: {error_message}. "
+                "Message made visible again for retry or DLQ processing."
+            )
 
         except Exception:
             logger.exception("Error handling task failure")

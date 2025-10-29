@@ -28,6 +28,7 @@ class Config(BaseSettings):
     sqs_max_messages: int = Field(default=10)
     sqs_wait_time_seconds: int = Field(default=20)
     sqs_visibility_timeout: int = Field(default=300)
+    sqs_max_receive_count: int = Field(default=1)
 
     class Config:
         env_file = ".env"

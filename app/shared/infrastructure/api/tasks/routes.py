@@ -18,14 +18,12 @@ class TaskRequest(BaseModel):
     payload: dict[str, Any]
     priority: TaskPriority = TaskPriority.NORMAL
     delay_seconds: int = 0
-    max_retries: int = 3
 
 
 class BatchTaskRequest(BaseModel):
     tasks: list[tuple[str, dict[str, Any]]]
     priority: TaskPriority = TaskPriority.NORMAL
     delay_seconds: int = 0
-    max_retries: int = 3
 
 
 class TaskResponse(BaseModel):
@@ -53,7 +51,6 @@ async def dispatch_task(
             payload=request.payload,
             priority=request.priority,
             delay_seconds=request.delay_seconds,
-            max_retries=request.max_retries,
         )
 
         if task_id:
@@ -85,7 +82,6 @@ async def dispatch_batch_tasks(
             tasks=request.tasks,
             priority=request.priority,
             delay_seconds=request.delay_seconds,
-            max_retries=request.max_retries,
         )
 
         return BatchTaskResponse(
@@ -188,7 +184,6 @@ async def dispatch_customer_creation_task(  # noqa: PLR0913
     active_policies_count: int | None = None,
     priority: TaskPriority = TaskPriority.NORMAL,
     delay_seconds: int = 0,
-    max_retries: int = 3,
     task_dispatcher: TaskDispatcher = Depends(Provide[Container.task_dispatcher]),
 ):
     """Dispatch a customer creation task."""
@@ -205,7 +200,6 @@ async def dispatch_customer_creation_task(  # noqa: PLR0913
             },
             priority=priority,
             delay_seconds=delay_seconds,
-            max_retries=max_retries,
         )
 
         if task_id:

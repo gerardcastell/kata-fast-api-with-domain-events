@@ -33,6 +33,10 @@ class TaskMessage(BaseModel):
     priority: TaskPriority = Field(default=TaskPriority.NORMAL)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     delay_seconds: int = Field(default=0, description="Delay before processing")
+    _receipt_handle: str | None = Field(default=None, description="SQS receipt handle")
+    _approximate_receive_count: int | None = Field(
+        default=None, description="SQS approximate receive count"
+    )
 
     class Config:
         json_encoders: ClassVar[dict] = {

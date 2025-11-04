@@ -175,7 +175,7 @@ class SQSWorker:
         """Handle successful task completion."""
         try:
             # Delete message from SQS
-            if hasattr(message, "_receipt_handle"):
+            if hasattr(message, "_receipt_handle") and message._receipt_handle is not None:
                 await self.sqs_client.delete_message(message._receipt_handle)
 
             logger.info(f"Task {message.task_id} completed successfully. Result: {result}")
@@ -192,7 +192,7 @@ class SQSWorker:
             # move the message to the Dead Letter Queue
             receive_count = getattr(message, "_approximate_receive_count", 0)
 
-            if hasattr(message, "_receipt_handle"):
+            if hasattr(message, "_receipt_handle") and message._receipt_handle is not None:
                 await self.sqs_client.change_message_visibility(
                     message._receipt_handle, visibility_timeout=0
                 )

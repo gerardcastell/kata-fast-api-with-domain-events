@@ -1,6 +1,6 @@
 # Unified Command Toolkit for events-with-fast-api project
 
-.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file typecheck precommit-setup precommit-run precommit-update precommit-clean
+.PHONY: help dev debug logs shell db status stop clean build test test-unit test-integration test-coverage test-watch test-db-setup test-db-cleanup install-dev lint format makemigrations migrate test-quick test-file typecheck precommit-setup precommit-run precommit-update precommit-clean localstack localstack-logs localstack-stop sqs-test worker worker-logs worker-stop worker-shell worker-example
 
 # Colors for output
 RED := \033[0;31m
@@ -23,6 +23,19 @@ help:
 	@echo "  stop             - Stop all services"
 	@echo "  clean            - Stop and remove all containers/volumes"
 	@echo "  build            - Rebuild containers"
+	@echo ""
+	@echo "$(YELLOW)LocalStack SQS Commands:$(NC)"
+	@echo "  localstack       - Start LocalStack SQS service"
+	@echo "  localstack-logs  - Show LocalStack logs"
+	@echo "  localstack-stop  - Stop LocalStack service"
+	@echo "  sqs-test         - Test SQS functionality"
+	@echo ""
+	@echo "$(YELLOW)Worker Commands:$(NC)"
+	@echo "  worker           - Start SQS worker service"
+	@echo "  worker-logs      - Show worker logs"
+	@echo "  worker-stop      - Stop worker service"
+	@echo "  worker-shell     - Access worker container shell"
+	@echo "  worker-example   - Run worker example script"
 	@echo ""
 	@echo "$(YELLOW)Testing Commands:$(NC)"
 	@echo "  test             - Run all tests with docker-compose database"
@@ -110,6 +123,52 @@ build:
 	@docker-compose build app-dev --no-cache
 	@docker-compose build app-debug --no-cache
 	@echo "$(GREEN)[SUCCESS]$(NC) Containers rebuilt!"
+
+# LocalStack SQS Commands
+localstack:
+	@echo "$(BLUE)[INFO]$(NC) Starting LocalStack SQS service..."
+	@docker-compose up localstack --build -d
+	@echo "$(GREEN)[SUCCESS]$(NC) LocalStack started!"
+	@echo "$(BLUE)[INFO]$(NC) LocalStack available at: http://localhost:4566"
+	@echo "$(BLUE)[INFO]$(NC) View logs with: make localstack-logs"
+
+localstack-logs:
+	@echo "$(BLUE)[INFO]$(NC) Showing LocalStack logs..."
+	@docker-compose logs -f localstack
+
+localstack-stop:
+	@echo "$(BLUE)[INFO]$(NC) Stopping LocalStack service..."
+	@docker-compose down localstack
+	@echo "$(GREEN)[SUCCESS]$(NC) LocalStack stopped!"
+
+sqs-test:
+	@echo "$(BLUE)[INFO]$(NC) Testing SQS functionality..."
+	@echo "$(BLUE)[INFO]$(NC) Running Python integration test..."
+	@uv run python scripts/test_sqs_localstack.py
+
+# Worker Commands
+worker:
+	@echo "$(BLUE)[INFO]$(NC) Starting SQS worker service..."
+	@docker-compose up worker --build -d
+	@echo "$(GREEN)[SUCCESS]$(NC) Worker started!"
+	@echo "$(BLUE)[INFO]$(NC) View logs with: make worker-logs"
+
+worker-logs:
+	@echo "$(BLUE)[INFO]$(NC) Showing worker logs..."
+	@docker-compose logs -f worker
+
+worker-stop:
+	@echo "$(BLUE)[INFO]$(NC) Stopping worker service..."
+	@docker-compose down worker
+	@echo "$(GREEN)[SUCCESS]$(NC) Worker stopped!"
+
+worker-shell:
+	@echo "$(BLUE)[INFO]$(NC) Accessing worker container shell..."
+	@docker-compose exec worker /bin/bash
+
+worker-example:
+	@echo "$(BLUE)[INFO]$(NC) Running worker example..."
+	@uv run python scripts/worker_example.py
 
 # Testing Commands
 test:

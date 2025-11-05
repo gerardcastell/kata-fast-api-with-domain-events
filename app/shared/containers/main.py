@@ -8,6 +8,8 @@ from app.shared.infrastructure.db.postgresql_async import (
 from app.shared.infrastructure.db.sqlite_async import (
     SQLiteDatabaseFactory,
 )
+from app.shared.infrastructure.sqs.client import SQSClient
+from app.shared.infrastructure.sqs.dispatcher import TaskDispatcher
 
 
 class Container(containers.DeclarativeContainer):
@@ -26,6 +28,18 @@ class Container(containers.DeclarativeContainer):
     )
 
     database = postgres_database
+
+    # SQS Services
+    sqs_client = providers.Singleton(
+        SQSClient,
+        queue_url=config.sqs_queue_url,
+    )
+
+    task_dispatcher = providers.Singleton(
+        TaskDispatcher,
+        sqs_client=sqs_client,
+    )
+
     customer_services = providers.Container(
         CustomerServices, session_factory=database.provided.session_factory
     )

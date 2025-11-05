@@ -32,3 +32,7 @@ coverage.xml
 
 # Security reports
 bandit-report.json
+
+# Logs
+*.log
+logs/

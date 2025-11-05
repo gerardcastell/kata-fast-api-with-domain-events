@@ -25,6 +25,22 @@
         }
       ],
       "justMyCode": false
+    },
+    {
+      "name": "Python Debugger: Worker (Docker Remote)",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 8000
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/app"
+        }
+      ],
+      "justMyCode": false
     }
   ]
 }

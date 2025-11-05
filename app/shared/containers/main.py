@@ -8,6 +8,7 @@ from app.shared.infrastructure.db.postgresql_async import (
 from app.shared.infrastructure.db.sqlite_async import (
     SQLiteDatabaseFactory,
 )
+from app.shared.infrastructure.event.in_memory_event_bus import InMemoryEventBus
 from app.shared.infrastructure.sqs.client import SQSClient
 from app.shared.infrastructure.sqs.dispatcher import TaskDispatcher
 
@@ -15,6 +16,7 @@ from app.shared.infrastructure.sqs.dispatcher import TaskDispatcher
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
+    # Database
     sqlite_database = providers.Singleton(
         Database,
         db_url=config.sqlite_url,
@@ -28,6 +30,9 @@ class Container(containers.DeclarativeContainer):
     )
 
     database = postgres_database
+
+    # Event Bus
+    event_bus = providers.Singleton(InMemoryEventBus)
 
     # SQS Services
     sqs_client = providers.Singleton(

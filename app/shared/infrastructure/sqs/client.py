@@ -59,11 +59,11 @@ class SQSClient(SQSClientInterface):
             task_message = TaskMessage(**message_data)
 
             # Store receipt handle for later deletion
-            task_message._receipt_handle = sqs_message["ReceiptHandle"]
+            task_message.receipt_handle = sqs_message["ReceiptHandle"]
 
             # Store ApproximateReceiveCount for monitoring (SQS retry count)
             receive_count = sqs_message.get("Attributes", {}).get("ApproximateReceiveCount", "0")
-            task_message._approximate_receive_count = int(receive_count)
+            task_message.approximate_receive_count = int(receive_count)
 
         except (json.JSONDecodeError, ValueError):
             logger.exception("Failed to parse message:")

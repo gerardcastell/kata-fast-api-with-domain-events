@@ -68,8 +68,8 @@ async def test_sqs_functionality():
 
             # Test 3: Delete message
             print("\n🗑️  Test 3: Deleting message...")
-            if hasattr(received_message, "_receipt_handle"):
-                delete_success = await client.delete_message(received_message._receipt_handle)
+            if hasattr(received_message, "receipt_handle"):
+                delete_success = await client.delete_message(received_message.receipt_handle)
                 if delete_success:
                     print("✅ Message deleted successfully!")
                 else:

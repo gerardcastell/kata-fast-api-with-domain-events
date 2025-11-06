@@ -1,8 +1,13 @@
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
     app_title: str = Field("Insurance API")
     debug: bool = Field(False)
     log_level: str = Field("INFO")
@@ -30,10 +35,5 @@ class Config(BaseSettings):
     sqs_visibility_timeout: int = Field(default=300)
     sqs_max_receive_count: int = Field(default=1)
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
 
-
-settings = Config()
+settings = Config()  # pyright: ignore[reportCallIssue]

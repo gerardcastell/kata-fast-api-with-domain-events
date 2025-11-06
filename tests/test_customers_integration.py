@@ -32,7 +32,7 @@ async def test_create_customer_integration(
     customer_response = response.json()
     assert customer_response["name"] == customer_data["name"]
     assert customer_response["email"] == customer_data["email"]
-    assert customer_response["activePoliciesCount"] == customer_data["activePoliciesCount"]
+    assert customer_response["activePoliciesCount"] == int(customer_data["activePoliciesCount"])
     assert "id" in customer_response
 
     # Verify customer was saved to database
@@ -45,7 +45,7 @@ async def test_create_customer_integration(
     assert db_customer is not None
     assert db_customer.name == customer_data["name"]
     assert db_customer.email == customer_data["email"]
-    assert db_customer.activePoliciesCount == customer_data["activePoliciesCount"]
+    assert db_customer.activePoliciesCount == int(customer_data["activePoliciesCount"])
 
 
 @pytest.mark.integration

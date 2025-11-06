@@ -1,12 +1,17 @@
 import os
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class TestConfig(BaseSettings):
+class EnvironmentConfig(BaseSettings):
     """Test-specific configuration that overrides the default settings."""
 
+    model_config = SettingsConfigDict(
+        env_file=".env.test",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
     app_title: str = Field("Insurance API - Test")
     debug: bool = Field(True)
     log_level: str = Field("DEBUG")
@@ -24,15 +29,10 @@ class TestConfig(BaseSettings):
     psql_db_password: str = Field("1234")
     create_tables_on_startup: bool = Field(default=True)
 
-    class Config:
-        env_file = ".env.test"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
-
 
 # Override the settings for testing
 def get_test_settings():
-    return TestConfig()
+    return EnvironmentConfig()  # pyright: ignore[reportCallIssue]
 
 
 # Set environment variables for testing

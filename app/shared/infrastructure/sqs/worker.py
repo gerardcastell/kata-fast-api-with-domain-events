@@ -175,8 +175,8 @@ class SQSWorker:
         """Handle successful task completion."""
         try:
             # Delete message from SQS
-            if hasattr(message, "_receipt_handle") and message._receipt_handle is not None:
-                await self.sqs_client.delete_message(message._receipt_handle)
+            if hasattr(message, "receipt_handle") and message.receipt_handle is not None:
+                await self.sqs_client.delete_message(message.receipt_handle)
 
             logger.info(f"Task {message.task_id} completed successfully. Result: {result}")
 
@@ -190,11 +190,11 @@ class SQSWorker:
             # Setting visibility timeout to 0 makes the message immediately visible again
             # After maxReceiveCount (configured in queue RedrivePolicy), SQS will automatically
             # move the message to the Dead Letter Queue
-            receive_count = getattr(message, "_approximate_receive_count", 0)
+            receive_count = getattr(message, "approximate_receive_count", 0)
 
-            if hasattr(message, "_receipt_handle") and message._receipt_handle is not None:
+            if hasattr(message, "receipt_handle") and message.receipt_handle is not None:
                 await self.sqs_client.change_message_visibility(
-                    message._receipt_handle, visibility_timeout=0
+                    message.receipt_handle, visibility_timeout=0
                 )
 
             logger.error(

@@ -7,7 +7,7 @@ from app.shared.domain.event.event_bus import AsyncEventBus
 
 class InMemoryEventBus(AsyncEventBus):
     def __init__(self, subscribers: list[DomainEventSubscriber] | None = None):
-        self._subscriptions: dict[DomainEvent, list[DomainEventSubscriber]] = {}
+        self._subscriptions: dict[type[DomainEvent], list[DomainEventSubscriber]] = {}
         if subscribers:
             self._register_subscribers(subscribers)
 
@@ -16,7 +16,7 @@ class InMemoryEventBus(AsyncEventBus):
         executions = [
             subscriber.on(event)
             for event in events
-            for subscriber in self._subscriptions.get(event, [])
+            for subscriber in self._subscriptions.get(type(event), [])
         ]
         if executions:
             await asyncio.gather(*executions)
